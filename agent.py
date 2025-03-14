@@ -7,6 +7,7 @@ import json, os
 
 url = "your_url"
 api_key = "sk-xxxx"
+model = "Qwen/Qwen2.5-7B-Instruct"
 
 assert url != "your_url" and api_key != "sk-xxxx", "请填写正确的url和api_key"
 
@@ -38,7 +39,7 @@ while True:
         break
     payload.append({"role": "user", "content": user_input})
     response = client.chat.completions.create(
-        model="Qwen/Qwen2.5-7B-Instruct", messages=payload, stream=True
+        model=model, messages=payload, stream=True
     )
     replay = ""
     for chunk in response:
