@@ -87,7 +87,7 @@ If you want to make this Agent more intelligent and powerful, consider the follo
 
 3️⃣ **AI-driven Automation Scripts 🚀**  
    - Enable AI not just to execute commands but also to **invoke other automation scripts**, forming a more adaptive workflow.  
-   - Write automation scripts for tasks like **batch file organization or automated log analysis**, and let AI call them at appropriate times to achieve higher-level intelligent automation.  
+   - Write automation scripts for tasks like **batch file organization or automated log analysis**, and let AI call those `best practices` at appropriate times to achieve higher-level intelligent automation.  
 
 By implementing these improvements, your AI terminal assistant can evolve beyond just a "command parser" into a truly intelligent Agent! 💡✨  
 
