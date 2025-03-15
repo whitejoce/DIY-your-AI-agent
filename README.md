@@ -1,5 +1,9 @@
 # DIY-Your-AI-Agent: AI-powered Smart Terminal Assistant  
 
+[中文文档](https://github.com/whitejoce/DIY-your-AI-agent/blob/main/README_CN.md)
+ 
+> *Generated and optimized by GPT-4o*
+
 ## 🔥 Project Overview  
 
 This project is an **AI-powered smart terminal assistant (Linux Agent) based on Large Language Models (LLM)**. It automatically analyzes user input, determines whether a terminal command needs to be executed, and returns results in **JSON format**, ensuring secure interactions.  
