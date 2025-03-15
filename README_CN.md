@@ -63,7 +63,7 @@ pip install openai
 
 ### 2️⃣ **配置 API**  
 
-修改 `mvp_ag.py`：  
+修改 `agent.py`：  
 ```python
 url = "your_openai_api_url"
 api_key = "your_openai_api_key"
