@@ -22,7 +22,7 @@ User Input → LLM Intent Recognition → Determine if Command Execution is Need
 
 Start the interactive smart terminal:  
 ```bash
-python agent.py
+python agent_en.py
 ```
 Then enter any Linux-related command, for example:  
 
@@ -64,7 +64,7 @@ pip install openai
 
 ### 2️⃣ **Configure API**  
 
-Modify `agent.py`:  
+Modify `agent_en.py`:  
 ```python
 url = "your_openai_api_url"
 api_key = "your_openai_api_key"
