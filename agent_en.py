@@ -33,11 +33,14 @@ Or normal answer example:
 """
 
 payload = [{"role": "system", "content": prompt}]
+rejudge = False
 while True:
-        user_input = input("Smart_Shell> ")
-        if user_input == r"/quit":
-                break
-        payload.append({"role": "user", "content": user_input})
+        if not rejudge:
+            rejudge = False
+            user_input = input("Smart_Shell> ")
+            if user_input == r"/quit":
+                    break
+            payload.append({"role": "user", "content": user_input})
         response = client.chat.completions.create(
                 model=model,
                 messages=payload,
@@ -67,3 +70,4 @@ while True:
         except json.JSONDecodeError:
                 print(f"Unable to parse result:\n {replay=}")
                 payload.append({"role": "user", "content": "You should reply in JSON format"})
+                rejudge = True
