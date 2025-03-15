@@ -1,8 +1,6 @@
 # DIY-Your-AI-Agent: AI-powered Smart Terminal Assistant  
 
 [中文文档](https://github.com/whitejoce/DIY-your-AI-agent/blob/main/README_CN.md)
- 
-> *Generated and optimized by GPT-4o*
 
 ## 🔥 Project Overview  
 
