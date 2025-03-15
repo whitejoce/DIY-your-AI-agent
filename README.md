@@ -44,7 +44,7 @@ If the command is potentially dangerous, such as `rm -rf`, the system will autom
 
 ## 📖 How It Works  
 
-This smart assistant operates based on **LLM + rule constraints**, with core logic including:  
+This AI Agent operates based on **LLM + rule constraints**, with core logic including:  
 
 1. **LLM-based reasoning**: Uses models like Qwen/Qwen2.5-7B-Instruct (or other LLMs) to analyze user input.  
 2. **Rule-based guidance**: Ensures AI responses comply with predefined formats (e.g., JSON output).  
@@ -76,7 +76,7 @@ api_key = "your_openai_api_key"
 
 If you want to make this Agent more intelligent and powerful, consider the following approaches:  
 
-1️⃣ **Chat with AI Directly** – *Ask the Friendly AI* 🤖  
+1️⃣ *Ask the Friendly AI* 🤖  
    - Engage in discussions with the model directly in the terminal to refine your ideas.  
    - Ask questions like: "How can I make the Agent more autonomous?" or "How can I optimize my terminal assistant?"  
 
