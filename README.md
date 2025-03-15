@@ -79,13 +79,14 @@ api_key = "your_openai_api_key"
    - 直接在终端与大模型讨论你的创意，让 AI 帮你完善思路。  
    - 你可以向它提问：“如何让 Agent 更自主？” 或者“如何优化我的终端助手？”  
 
-2️⃣ **深入理解 MCP 架构** 🏗️  
-   - MCP（Modular Cognitive Processing）是一种**模块化智能体设计思想**，可以帮助你更好地拆分 Agent 的功能模块，提高可扩展性和智能性。  
-   - 你可以从 MCP 的角度思考：是否可以拆分**感知、决策、执行**等部分，让 Agent 更像一个真正的智能体？  
+2️⃣ **Model Context Protocol** 🏗️  
+   - MCP（Model Context Protocol）是一种开放协议，旨在实现大型语言模型（LLM）与外部数据源和工具的无缝集成。
+   - 通过标准化AI系统与数据源的交互方式，MCP帮助模型获取更丰富的上下文信息，从而生成更准确、更相关的响应。
+   - 你可以参考[MCP官方仓库](https://github.com/modelcontextprotocol)和[Anthropic Blog](https://www.anthropic.com/news/model-context-protocol)来了解MCP的概念和应用。 
 
 3️⃣ **用 AI 驱动自动化脚本** 🚀  
    - 让 AI 不仅执行命令，还能**调用其他自动化脚本**，形成更强的自适应工作流。  
-   - 你可以编写小脚本，比如**批量整理文件、自动化日志分析**，然后让 AI 在适当时候调用它们，实现更高阶的智能自动化。  
+   - 可以通过编写自动化脚本，比如**批量整理文件、自动化日志分析**，然后让 AI 在适当时候调用它们，实现更高阶的智能自动化。  
 
 这些改进方向，可以让你的 AI 终端助手不仅仅是一个“命令解析器”，而是一个真正具备智能性的 Agent！💡✨
 
