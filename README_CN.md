@@ -65,8 +65,8 @@ pip install openai
 
 修改 `agent.py`：  
 ```python
-url = "your_openai_api_url"
-api_key = "your_openai_api_key"
+url = "your_api_url"
+api_key = "your_api_key"
 ```
 
 ---
