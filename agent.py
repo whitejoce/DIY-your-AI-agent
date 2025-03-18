@@ -31,7 +31,7 @@ SYSTEM_PROMPT = """
 3. 命令格式示例：
 {
   "action": "execute_command", 
-  "command": "dir",
+  "command": "ls -l",
   "explanation": "列出当前目录的详细信息"
 }
 或正常回答示例:
