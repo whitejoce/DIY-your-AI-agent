@@ -51,6 +51,7 @@ This AI Agent operates based on **LLM + rule constraints**, with core logic incl
 3. **Interactive mechanism**: Users manually confirm commands to prevent accidental operations.  
 4. **Terminal execution**: Uses `os.popen` to run Bash commands and return execution results.  
 
+> The simplified version of the code (MVP): You can check `agent_mvp_en.py` to browse it.
 ---
 
 ## 🚀 Quick Start  
