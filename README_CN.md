@@ -58,10 +58,10 @@ Smart_Shell> 查看当前目录文件
 
 ### 1️⃣ **环境准备**  
 
-需要 **Python 3.8+**，并安装 OpenAI 相关库：  
+需要 **Python 3.8+**，并安装 OpenAI 和 rich (富文本)库：  
 
 ```bash
-pip install openai
+pip install openai rich
 ```
 
 ### 2️⃣ **配置 API**  
