@@ -6,7 +6,7 @@
 
 This project is an **AI-powered smart terminal assistant (Linux Agent) based on Large Language Models (LLM)**. It automatically analyzes user input, determines whether a terminal command needs to be executed, and returns results in **JSON format**, ensuring secure interactions.  
 
-<img src="https://github.com/whitejoce/DIY-your-AI-agent/blob/main/img/test_en.png" width=50% height=auto>
+<img src="https://github.com/whitejoce/DIY-your-AI-agent/blob/main/img/test_en.png">
 
 **Collaboration Process Between Conversation and Command Execution:**  
 ```plaintext
