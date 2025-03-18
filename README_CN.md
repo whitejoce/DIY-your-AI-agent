@@ -4,7 +4,7 @@
 
 本项目是一个 **基于大模型（LLM）的终端智能助手（Linux Agent）**，能够自动分析用户输入，判断是否需要执行终端命令，并以 **JSON 格式** 返回结果，确保交互安全。
 
-<img src="https://github.com/whitejoce/DIY-your-AI-agent/blob/main/img/test.png" width=50% height=auto>
+<img src="https://github.com/whitejoce/DIY-your-AI-agent/blob/main/img/test.png">
 
 **对话与指令执行的协作流程**
 ```plaintext
