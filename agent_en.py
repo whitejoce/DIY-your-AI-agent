@@ -76,7 +76,6 @@ rejudge = False
 while True:
     try:
         if not rejudge:
-            rejudge = False
             user_input = Prompt.ask("[bold blue]Smart_Shell[/bold blue]")
             
             if user_input.lower() in ['/quit', 'exit', 'quit']:
@@ -84,7 +83,7 @@ while True:
                 break
                 
             payload.append({"role": "user", "content": user_input})
-            
+        rejudge = False
         response = client.chat.completions.create(
             model=API_CONFIG["model"], messages=payload, stream=True
         )
