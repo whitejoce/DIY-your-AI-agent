@@ -36,10 +36,10 @@ payload = [{"role": "system", "content": prompt}]
 rejudge = False
 while True:
     if not rejudge:
-        rejudge = False
         user_input = input("Smart_Shell> ")
         if user_input == r"/quit":
             break
+    rejudge = False
     payload.append({"role": "user", "content": user_input})
     response = client.chat.completions.create(
         model=model, messages=payload, stream=True
