@@ -51,7 +51,7 @@ This AI Agent operates based on **LLM + rule constraints**, with core logic incl
 1. **LLM-based reasoning**: Uses models like Qwen/Qwen2.5-7B-Instruct (or other LLMs) to analyze user input.  
 2. **Rule-based guidance**: Ensures AI responses comply with predefined formats (e.g., JSON output).  
 3. **Interactive mechanism**: Users manually confirm commands to prevent accidental operations.  
-4. **Terminal execution**: Uses `os.popen` to run Bash commands and return execution results.  
+4. **Terminal execution**: Uses `subprocess.Popen()` to run Bash commands and return execution results.  
 
 > The simplified version of the code (MVP): You can check `agent_mvp_en.py` to browse it.
 ---
