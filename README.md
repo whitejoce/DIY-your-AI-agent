@@ -60,9 +60,9 @@ This AI Agent operates based on **LLM + rule constraints**, with core logic incl
 
 ### 1️⃣ **Environment Setup**  
 
-Requires **Python 3.8+**, and install OpenAI-related dependencies:  
+Requires **Python 3.8+**, and install the necessary dependencies:  
 ```bash
-pip install openai
+pip install openai rich
 ```  
 
 ### 2️⃣ **Configure API**  
