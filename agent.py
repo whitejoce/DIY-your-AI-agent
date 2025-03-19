@@ -1,8 +1,9 @@
 #!/usr/bin/env python
+#!/usr/bin/env python
 # _*_coding: utf-8 _*_
 # Coder: Whitejoce
 
-import json
+import re, json
 import subprocess
 
 from openai import OpenAI
@@ -11,25 +12,25 @@ from rich.prompt import Prompt
 from rich.panel import Panel
 from rich.markdown import Markdown
 
-# Configuration
+# API 配置
 API_CONFIG = {
     "url": "your_url",
-    "api_key": "sk-xxx",  # Add your API key here
+    "api_key": "",  # 填写你的API key
     "model": "Qwen/Qwen2.5-7B-Instruct",
 }
 
-# Validate API configuration
+# 验证API配置
 assert (
-    API_CONFIG["url"] != "your_url" and API_CONFIG["api_key"] != "sk-xxx"
+    API_CONFIG["url"] != "your_url" and API_CONFIG["api_key"] != ""
 ), "请填写正确的url和api_key"
 
-# System prompt for the agent
+# 系统提示词
 SYSTEM_PROMPT = """
-你是一个Linux命令终端Agent,需要判断用户是否需要执行终端命令。按规则3,使用JSON格式生成回答;
+你是一个Windows助手Agent,需要判断用户是否需要执行终端命令。请严格遵循以下规则,并且输出必须为纯JSON格式,无markdown标记
+规则:
 
-规则：
-1. 当用户请求涉及文件操作、系统状态查询、进程管理时,生成命令。保证在bash里执行不会出错。
-2. 危险命令(rm -rf、sudo等)需向用户二次确认
+1.当用户的请求涉及文件操作、系统状态查询、进程管理等操作时,生成相应的终端命令,且确保命令在powershell环境下可以正确执行。
+2.对于危险命令(例如:rm -rf、sudo等),必须要求用户进行二次确认后再执行。
 3. 命令格式示例：
 {
   "action": "execute_command", 
@@ -41,20 +42,34 @@ SYSTEM_PROMPT = """
   "action": "direct_reply",
   "content": "好的,已为您查询到..."
 }
-4. 不要直接回答问题,请遵守规则3,按JSON格式回答。
+4.请根据上述规则以符合格式的JSON进行回复。
 """
 
-# Initialize Rich components
+# 初始化Rich组件
 console = Console()
 
-# Initialize OpenAI client
+# 初始化OpenAI客户端
 client = OpenAI(api_key=API_CONFIG["api_key"], base_url=API_CONFIG["url"])
 
 payload = [{"role": "system", "content": SYSTEM_PROMPT}]
 
 
+def get_chat_response(client, payload):
+    response = client.chat.completions.create(
+        model=API_CONFIG["model"], messages=payload, stream=True
+    )
+    reply_chunk, reasoning_chunk = [], []
+    for chunk in response:
+        if chunk.choices[0].delta.content:
+            reply_chunk.append(chunk.choices[0].delta.content)
+        if chunk.choices[0].delta.reasoning_content:
+            reasoning_chunk.append(chunk.choices[0].delta.reasoning_content)
+            print(chunk.choices[0].delta.reasoning_content, end="")
+    return "".join(reply_chunk), "".join(reasoning_chunk)
+
+
 def execute_command(cmd):
-    """执行命令并保留颜色输出"""
+    # 执行命令并保留颜色输出
     try:
         process = subprocess.Popen(
             cmd,
@@ -73,28 +88,30 @@ def execute_command(cmd):
         return False, str(e)
 
 
-
+rejudge = False
+rejudge_count = 0
 while True:
     try:
-        user_input = Prompt.ask("[bold blue]Smart_Shell[/bold blue]")
+        if not rejudge:
+            rejudge = False
+            user_input = Prompt.ask("[bold blue]Smart_Shell[/bold blue]")
 
-        if user_input.lower() in ["/quit", "exit", "quit"]:
-            console.print("[yellow]再见！[/yellow]")
-            break
+            if user_input.lower() in ["/quit", "exit", "quit"]:
+                console.print("[yellow]再见！[/yellow]")
+                break
 
-        payload.append({"role": "user", "content": user_input})
+            payload.append({"role": "user", "content": user_input})
 
-        replay = ""
-        with console.status("[bold green]思考中...[/bold green]"):
-            response = client.chat.completions.create(
-                model=API_CONFIG["model"], messages=payload
-            )
-            replay = response.choices[0].message.content
+        reply, reasoning = get_chat_response(client, payload)
 
         try:
-            command = json.loads(replay)
-            payload.append({"role": "assistant", "content": replay})
-
+            pattern = re.compile(r"```json\n(.*?)\n```", re.S)
+            if pattern.search(reply):
+                reply = pattern.findall(reply)[0]
+            command = json.loads(reply)
+            payload.append({"role": "assistant", "content": reply})
+            rejudge = False
+            rejudge_count = 0
             if command["action"] == "execute_command":
                 console.print(
                     f"[bold yellow]执行指令:[/bold yellow] {command['command']}"
@@ -119,17 +136,27 @@ while True:
                     payload.append({"role": "assistant", "content": "已取消执行"})
 
             elif command["action"] == "direct_reply":
-                # Display direct reply with proper Markdown formatting
+                # 直接回复并Markdown格式化
                 md = Markdown(command["content"])
                 console.print(Panel(md, title="回复", border_style="blue"))
 
         except json.JSONDecodeError:
-            console.print(f"[red]无法解析结果:[/red]\n {replay}")
-            payload.append({"role": "user", "content": "接下来请只用JSON格式回复"})
+            console.print(f"[red]无法解析结果:[/red]\n {reply}")
+            payload.append(
+                {
+                    "role": "system",
+                    "content": "接下来请提供符合格式的回复,即使用JSON,并且避免任何markdown标记。",
+                }
+            )
+            rejudge = True
+            rejudge_count += 1
+            if rejudge_count > 3:
+                print(f"[red] [!] 无法解析结果次数过多，程序退出![/red]")
+                break
 
     except KeyboardInterrupt:
         console.print("\n[yellow]使用 /quit 退出程序[/yellow]")
         continue
-    except Exception as e:
-        console.print(f"[red]发生错误:[/red] {str(e)}")
+    except Exception as error:
+        console.print(f"[red]发生错误:[/red] {str(error)}")
         continue

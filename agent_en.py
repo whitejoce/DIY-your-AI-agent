@@ -1,8 +1,9 @@
 #!/usr/bin/env python
+#!/usr/bin/env python
 # _*_coding: utf-8 _*_
 # Coder: Whitejoce
 
-import json
+import re, json
 import subprocess
 
 from openai import OpenAI
@@ -14,25 +15,25 @@ from rich.markdown import Markdown
 # Configuration
 API_CONFIG = {
     "url": "your_url",
-    "api_key": "sk-xxx",  # Add your API key here
+    "api_key": "",  # Add your API key here
     "model": "Qwen/Qwen2.5-7B-Instruct",
 }
 
 # Validate API configuration
 assert (
-    API_CONFIG["url"] != "your_url" and API_CONFIG["api_key"] != "sk-xxx"
-), "Please provide a valid URL and API key"
+    API_CONFIG["url"] != "your_url" and API_CONFIG["api_key"] != ""
+), "Please fill in the correct url and api_key"
 
 # System prompt for the agent
 SYSTEM_PROMPT = """
-You are a Linux command terminal Agent. You need to determine whether the user requires terminal command execution. Follow Rule 3 and generate responses in JSON format;
-
+You are a Linux Assistant Agent, you need to determine if the user needs to execute terminal commands. Please strictly follow these rules, and the output must be in pure JSON format without any markdown markup.
 Rules:
-1. When the user's request involves file operations, system status queries, or process management, generate commands. Ensure the commands can be executed in bash without errors.
-2. Dangerous commands (e.g., rm -rf, sudo) require secondary confirmation from the user.
+
+1. When the user's request involves file operations, system status queries, process management, etc., generate the corresponding terminal commands that can be executed correctly in a bash environment.
+2. For dangerous commands (e.g., rm -rf, sudo, etc.), you must ask the user for confirmation before executing.
 3. Command format example:
 {
-  "action": "execute_command", 
+  "action": "execute_command",
   "command": "ls -l",
   "explanation": "List detailed information of the current directory"
 }
@@ -41,7 +42,7 @@ Or normal reply example:
   "action": "direct_reply",
   "content": "Okay, I have found the information for you..."
 }
-4. Do not directly answer questions. Follow Rule 3 and respond in JSON format.
+4. Don't answer questions directly, but respond according to the above rules with JSON in the correct format.
 """
 
 # Initialize Rich components
@@ -53,8 +54,22 @@ client = OpenAI(api_key=API_CONFIG["api_key"], base_url=API_CONFIG["url"])
 payload = [{"role": "system", "content": SYSTEM_PROMPT}]
 
 
+def get_chat_response(client, payload):
+    response = client.chat.completions.create(
+        model=API_CONFIG["model"], messages=payload, stream=True
+    )
+    reply_chunk, reasoning_chunk = [], []
+    for chunk in response:
+        if chunk.choices[0].delta.content:
+            reply_chunk.append(chunk.choices[0].delta.content)
+        if chunk.choices[0].delta.reasoning_content:
+            reasoning_chunk.append(chunk.choices[0].delta.reasoning_content)
+            print(chunk.choices[0].delta.reasoning_content, end="")
+    return "".join(reply_chunk), "".join(reasoning_chunk)
+
+
 def execute_command(cmd):
-    """Execute a command and retain colored output"""
+    # Execute the command and keep the color output
     try:
         process = subprocess.Popen(
             cmd,
@@ -73,27 +88,30 @@ def execute_command(cmd):
         return False, str(e)
 
 
+rejudge = False
+rejudge_count = 0
 while True:
     try:
-        user_input = Prompt.ask("[bold blue]Smart_Shell[/bold blue]")
+        if not rejudge:
+            rejudge = False
+            user_input = Prompt.ask("[bold blue]Smart_Shell[/bold blue]")
 
-        if user_input.lower() in ["/quit", "exit", "quit"]:
-            console.print("[yellow]Goodbye![/yellow]")
-            break
+            if user_input.lower() in ["/quit", "exit", "quit"]:
+                console.print("[yellow]Goodbye![/yellow]")
+                break
 
-        payload.append({"role": "user", "content": user_input})
-              
-        replay = ""
-        with console.status("[bold green]Thinking...[/bold green]"):
-            response = client.chat.completions.create(
-                model=API_CONFIG["model"], messages=payload
-            )
-            replay = response.choices[0].message.content
+            payload.append({"role": "user", "content": user_input})
+
+        reply, reasoning = get_chat_response(client, payload)
 
         try:
-            command = json.loads(replay)
-            payload.append({"role": "assistant", "content": replay})
-
+            pattern = re.compile(r"```json\n(.*?)\n```", re.S)
+            if pattern.search(reply):
+                reply = pattern.findall(reply)[0]
+            command = json.loads(reply)
+            payload.append({"role": "assistant", "content": reply})
+            rejudge = False
+            rejudge_count = 0
             if command["action"] == "execute_command":
                 console.print(
                     f"[bold yellow]Executing command:[/bold yellow] {command['command']}"
@@ -117,28 +135,34 @@ while True:
                             }
                         )
                 else:
-                    console.print("[yellow]Execution canceled[/yellow]")
+                    console.print("[yellow]Execution cancelled[/yellow]")
                     payload.append(
-                        {"role": "assistant", "content": "Execution canceled"}
+                        {"role": "assistant", "content": "Execution cancelled"}
                     )
 
             elif command["action"] == "direct_reply":
-                # Display direct reply with proper Markdown formatting
                 md = Markdown(command["content"])
                 console.print(Panel(md, title="Reply", border_style="blue"))
 
         except json.JSONDecodeError:
-            console.print(f"[red]Unable to parse result:[/red]\n {replay}")
+            console.print(f"[red]Unable to parse the result:[/red]\n {reply}")
             payload.append(
                 {
-                    "role": "user",
-                    "content": "Please respond in JSON format only from now on",
+                    "role": "system",
+                    "content": "Please provide a response in the correct format using JSON and avoid any markdown markup.",
                 }
             )
+            rejudge = True
+            rejudge_count += 1
+            if rejudge_count > 3:
+                print(
+                    "[red] [!] Unable to parse the result too many times, exiting![/red]"
+                )
+                break
 
     except KeyboardInterrupt:
-        console.print("\n[yellow]Use /quit to exit the program[/yellow]")
+        console.print("\n[yellow]Use /quit to exit[/yellow]")
         continue
-    except Exception as e:
-        console.print(f"[red]An error occurred:[/red] {str(e)}")
+    except Exception as error:
+        console.print(f"[red]An error occurred:[/red] {str(error)}")
         continue
