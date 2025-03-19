@@ -59,14 +59,12 @@ def get_chat_response(client, payload):
         model=API_CONFIG["model"], messages=payload, stream=True
     )
     reply_chunk, reasoning_chunk = [], []
-    full_reply = ""
     has_reasoning = False
     with console.status("[bold green]think...[/bold green]") as status:
         for chunk in response:
             if chunk.choices[0].delta.content:
                 content = chunk.choices[0].delta.content
                 reply_chunk.append(content)
-                full_reply += content
             
             if hasattr(chunk.choices[0].delta, 'reasoning_content') and chunk.choices[0].delta.reasoning_content:
                 has_reasoning = True
