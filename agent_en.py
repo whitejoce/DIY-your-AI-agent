@@ -73,26 +73,22 @@ def execute_command(cmd):
         return False, str(e)
 
 
-rejudge = False
 while True:
     try:
-        if not rejudge:
-            user_input = Prompt.ask("[bold blue]Smart_Shell[/bold blue]")
+        user_input = Prompt.ask("[bold blue]Smart_Shell[/bold blue]")
 
-            if user_input.lower() in ["/quit", "exit", "quit"]:
-                console.print("[yellow]Goodbye![/yellow]")
-                break
+        if user_input.lower() in ["/quit", "exit", "quit"]:
+            console.print("[yellow]Goodbye![/yellow]")
+            break
 
-            payload.append({"role": "user", "content": user_input})
-        rejudge = False
-        response = client.chat.completions.create(
-            model=API_CONFIG["model"], messages=payload, stream=True
-        )
-
+        payload.append({"role": "user", "content": user_input})
+              
         replay = ""
         with console.status("[bold green]Thinking...[/bold green]"):
-            for chunk in response:
-                replay += chunk.choices[0].delta.content
+            response = client.chat.completions.create(
+                model=API_CONFIG["model"], messages=payload
+            )
+            replay = response.choices[0].message.content
 
         try:
             command = json.loads(replay)
@@ -139,7 +135,6 @@ while True:
                     "content": "Please respond in JSON format only from now on",
                 }
             )
-            rejudge = True
 
     except KeyboardInterrupt:
         console.print("\n[yellow]Use /quit to exit the program[/yellow]")

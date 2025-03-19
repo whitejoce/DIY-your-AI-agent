@@ -33,20 +33,15 @@ prompt = """
 """
 
 payload = [{"role": "system", "content": prompt}]
-rejudge = False
 while True:
-    if not rejudge:
-        user_input = input("Smart_Shell> ")
-        if user_input == r"/quit":
-            break
-    rejudge = False
+    user_input = input("Smart_Shell> ")
+    if user_input == r"/quit":
+        break
     payload.append({"role": "user", "content": user_input})
     response = client.chat.completions.create(
-        model=model, messages=payload, stream=True
+        model=model, messages=payload
     )
-    replay = ""
-    for chunk in response:
-        replay += chunk.choices[0].delta.content
+    replay = response.choices[0].message.content
     try:
         command = json.loads(replay)
         payload.append({"role": "assistant", "content": replay})
@@ -70,4 +65,3 @@ while True:
     except json.JSONDecodeError:
         print(f"无法解析结果:\n {replay=}")
         payload.append({"role": "user", "content": "接下来请只用JSON格式回复"})
-        rejudge = True

@@ -73,26 +73,23 @@ def execute_command(cmd):
         return False, str(e)
 
 
-rejudge = False
+
 while True:
     try:
-        if not rejudge:
-            user_input = Prompt.ask("[bold blue]Smart_Shell[/bold blue]")
+        user_input = Prompt.ask("[bold blue]Smart_Shell[/bold blue]")
 
-            if user_input.lower() in ["/quit", "exit", "quit"]:
-                console.print("[yellow]再见！[/yellow]")
-                break
+        if user_input.lower() in ["/quit", "exit", "quit"]:
+            console.print("[yellow]再见！[/yellow]")
+            break
 
-            payload.append({"role": "user", "content": user_input})
-        rejudge = False
-        response = client.chat.completions.create(
-            model=API_CONFIG["model"], messages=payload, stream=True
-        )
+        payload.append({"role": "user", "content": user_input})
 
         replay = ""
         with console.status("[bold green]思考中...[/bold green]"):
-            for chunk in response:
-                replay += chunk.choices[0].delta.content
+            response = client.chat.completions.create(
+                model=API_CONFIG["model"], messages=payload
+            )
+            replay = response.choices[0].message.content
 
         try:
             command = json.loads(replay)
@@ -129,7 +126,6 @@ while True:
         except json.JSONDecodeError:
             console.print(f"[red]无法解析结果:[/red]\n {replay}")
             payload.append({"role": "user", "content": "接下来请只用JSON格式回复"})
-            rejudge = True
 
     except KeyboardInterrupt:
         console.print("\n[yellow]使用 /quit 退出程序[/yellow]")
