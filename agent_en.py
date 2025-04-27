@@ -165,9 +165,7 @@ while True:
             rejudge = True
             rejudge_count += 1
             if rejudge_count > 3:
-                print(
-                    "[red] [!] Unable to parse the result too many times, exiting![/red]"
-                )
+                console.print( "[red] [!] Unable to parse the result too many times, exiting![/red]")
                 break
 
     except KeyboardInterrupt:
