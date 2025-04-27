@@ -161,7 +161,7 @@ while True:
             rejudge = True
             rejudge_count += 1
             if rejudge_count > 3:
-                print(f"[red] [!] 无法解析结果次数过多，程序退出![/red]")
+                console.print(f"[red] [!] 无法解析结果次数过多，程序退出![/red]")
                 break
 
     except KeyboardInterrupt:
