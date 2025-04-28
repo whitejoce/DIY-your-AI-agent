@@ -86,7 +86,7 @@ api_key = "your_api_key"
 2️⃣ **Model Context Protocol** 🏗️  
    - MCP（Model Context Protocol）是一种开放协议，旨在实现大型语言模型（LLM）与外部数据源和工具的无缝集成。
    - 通过标准化AI系统与数据源的交互方式，MCP帮助模型获取更丰富的上下文信息，从而生成更准确、更相关的响应。
-   - 你可以参考[MCP官方文档](https://modelcontextprotocol.io/introduction) and [FastMCP](https://gofastmcp.com/getting-started/welcome)来了解MCP的概念和应用。 
+   - 你可以参考[MCP官方文档](https://modelcontextprotocol.io/introduction), [FastMCP](https://gofastmcp.com/getting-started/welcome)来了解MCP的概念和应用。 
 
 3️⃣ **用 AI 驱动自动化脚本** 🚀  
    - 让 AI 不仅执行命令，还能**调用其他自动化脚本**，形成更强的自适应工作流。  
