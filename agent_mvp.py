@@ -13,7 +13,7 @@ assert url != "your_url" and api_key != "sk-xxxx", "请填写正确的url和api_
 
 client = OpenAI(api_key=api_key, base_url=url)
 prompt = """
-你是一个Windows助手Agent,需要判断用户是否需要执行终端命令。请严格遵循以下规则,并且输出必须为纯JSON格式,无markdown标记
+你是一个Linux终端助手Agent,需要判断用户是否需要执行终端命令。请严格遵循以下规则,并且输出必须为纯JSON格式,无markdown标记
 规则:
 
 1.当用户的请求涉及文件操作、系统状态查询、进程管理等操作时,生成相应的终端命令,且确保命令在powershell环境下可以正确执行。
