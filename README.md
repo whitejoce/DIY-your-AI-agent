@@ -86,7 +86,7 @@ If you want to make this Agent more intelligent and powerful, consider the follo
 2️⃣ **Model Context Protocol (MCP) 🏗️**  
    - MCP (Model Context Protocol) is an open protocol designed to seamlessly integrate Large Language Models (LLMs) with external data sources and tools.  
    - By standardizing interactions between AI systems and data sources, MCP enables models to generate more accurate and contextually relevant responses.  
-   - Refer to the [MCP Official Repository](https://github.com/modelcontextprotocol) and [Anthropic Blog](https://www.anthropic.com/news/model-context-protocol) to learn more.  
+   - Refer to the [MCP Documentation](https://modelcontextprotocol.io/introduction) and [FastMCP](https://gofastmcp.com/getting-started/welcome) to learn more.  
 
 3️⃣ **AI-driven Automation Scripts 🚀**  
    - Enable AI not just to execute commands but also to **invoke other automation scripts**, forming a more adaptive workflow.  
