@@ -1,9 +1,11 @@
 # DIY Your AI Agent: AI-powered Smart Terminal Assistant  
 
 <p align="center">
-   <a href="./README_CN.md">中文文档</a> |
-   <a href="https://deepwiki.com/whitejoce/DIY-your-AI-agent">DeepWiki for this Repository</a>
+  <a href="./README_CN.md">中文文档</a> |
+  <a href="https://deepwiki.com/whitejoce/DIY-your-AI-agent">deepwiki</a> |
+  <a href="https://github.com/whitejoce/mcp_agent">yet-another-mcp-implementation</a>
 </p>
+
 
 ## 🔥 Project Overview  
 
