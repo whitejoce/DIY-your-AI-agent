@@ -1,5 +1,7 @@
 # DIY Your AI Agent: 基于大模型的智能终端助手
 
+> 使用MCP实现的AI Agent: [MCP Agent Demo](https://github.com/whitejoce/mcp_agent)
+
 ## 🔥 项目简介  
 
 本项目是一个 **基于大模型（LLM）的终端智能助手（Linux Agent）**，能够自动分析用户输入，判断是否需要执行终端命令，并以 **JSON 格式** 返回结果，确保交互安全。
