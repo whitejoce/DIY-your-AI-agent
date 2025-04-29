@@ -106,7 +106,7 @@ while True:
             rejudge = False
             user_input = Prompt.ask("[bold blue]Smart_Shell[/bold blue]")
 
-            if user_input.lower() in ["/exit", "exit", "quit"]:
+            if user_input.lower() in ["/exit", "exit", "/quit"]:
                 console.print("[yellow]再见！[/yellow]")
                 break
 
