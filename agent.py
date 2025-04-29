@@ -106,7 +106,7 @@ while True:
             rejudge = False
             user_input = Prompt.ask("[bold blue]Smart_Shell[/bold blue]")
 
-            if user_input.lower() in ["/quit", "exit", "quit"]:
+            if user_input.lower() in ["/exit", "exit", "quit"]:
                 console.print("[yellow]再见！[/yellow]")
                 break
 
@@ -165,7 +165,7 @@ while True:
                 break
 
     except KeyboardInterrupt:
-        console.print("\n[yellow]使用 /quit 退出程序[/yellow]")
+        console.print("\n[yellow]使用 /exit 退出程序[/yellow]")
         continue
     except Exception as error:
         console.print(f"[red]发生错误:[/red] {str(error)}")
