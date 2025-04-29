@@ -1,12 +1,15 @@
 # DIY Your AI Agent: AI-powered Smart Terminal Assistant  
 
-[中文文档](https://github.com/whitejoce/DIY-your-AI-agent/blob/main/README_CN.md)
+<p align="center">
+   <a href="./README_CN.md">中文文档</a> |
+   <a href="https://deepwiki.com/whitejoce/DIY-your-AI-agent">DeepWiki for this Repository</a>
+</p>
 
 ## 🔥 Project Overview  
 
 This project is an **AI-powered smart terminal assistant (Linux Agent) based on Large Language Models (LLM)**. It automatically analyzes user input, determines whether a terminal command needs to be executed, and returns results in **JSON format**, ensuring secure interactions.  
 
-<img src="https://github.com/whitejoce/DIY-your-AI-agent/blob/main/img/test_en.png">
+<img src="./img/test_en.png">
 
 **Collaboration Process Between Conversation and Command Execution:**  
 ```plaintext
