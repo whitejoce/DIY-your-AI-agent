@@ -59,7 +59,7 @@ while True:
         payload.append({"role": "user", "content": user_input})
     reply, reasoning = process_response(model,payload)
     try:
-        pattern = re.compile(r"```json\n(.*?)\n```", re.S)
+        pattern = re.compile(r"```(?:json)?\n(.*?)\n```", re.S)
         if pattern.search(reply):
             reply = pattern.findall(reply)[0]
         command = json.loads(reply)
