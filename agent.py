@@ -152,7 +152,7 @@ if __name__ == "__main__":
             reply, reasoning = get_chat_response(client, payload)
 
             try:
-                pattern = re.compile(r"```json\n(.*?)\n```", re.S)
+                pattern = re.compile(r"```(?:json)?\n(.*?)\n```", re.S)
                 if pattern.search(reply):
                     reply = pattern.findall(reply)[0]
                 command = json.loads(reply)
