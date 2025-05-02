@@ -11,37 +11,39 @@ from rich.prompt import Prompt
 from rich.panel import Panel
 from rich.markdown import Markdown
 
-# Configuration
+# API configuration
 API_CONFIG = {
     "url": "your_url",
-    "api_key": "",  # Add your API key here
+    "api_key": "",  # Enter your API key here
     "model": "Qwen/Qwen2.5-7B-Instruct",
 }
-
 # Validate API configuration
 assert (
     API_CONFIG["url"] != "your_url" and API_CONFIG["api_key"] != ""
-), "Please fill in the correct url and api_key"
+), "Please provide a valid url and api_key"
 
-# System prompt for the agent
+# System prompt
 SYSTEM_PROMPT = """
-You are a Linux Assistant Agent, you need to determine if the user needs to execute terminal commands. Please strictly follow these rules, and the output must be in pure JSON format without any markdown markup.
+You are a Linux terminal assistant Agent. Please strictly follow the rules below:
+
 Rules:
 
-1. When the user's request involves file operations, system status queries, process management, etc., generate the corresponding terminal commands that can be executed correctly in a bash environment.
-2. For dangerous commands (e.g., rm -rf, sudo, etc.), you must ask the user for confirmation before executing.
-3. Command format example:
+1. When the user requests system operations, generate the corresponding terminal command (ensure Bash compatibility)
+2. Dangerous commands must require secondary confirmation before execution
+3. The output format must always be JSON, structured as follows:
+
 {
   "action": "execute_command",
   "command": "ls -l",
-  "explanation": "List detailed information of the current directory"
+  "explanation": "List detailed information of the current directory using the ls tool"
 }
-Or normal reply example:
+
+or
+
 {
   "action": "direct_reply",
-  "content": "Okay, I have found the information for you..."
+  "content": "Hello, how can I help you?"
 }
-4. Don't answer questions directly, but respond according to the above rules with JSON in the correct format.
 """
 
 # Initialize Rich components
@@ -52,18 +54,37 @@ client = OpenAI(api_key=API_CONFIG["api_key"], base_url=API_CONFIG["url"])
 
 payload = [{"role": "system", "content": SYSTEM_PROMPT}]
 
+def check_result(model_client, user_input, command_output) -> str:
+    prompt = f"""
+You are a task verification assistant. Based on the following information, determine whether the command met the user's expectations.
 
-def get_chat_response(client, payload):
+User request: {user_input}
+Command output: {command_output}
+
+Please answer:
+- If the expectation is met, output "[✅] Success"
+- If not, output "[❌] Failure: Reason"
+    """
+    response = model_client.chat.completions.create(
+        model=API_CONFIG["model"],
+        messages=[{"role": "system", "content": prompt}]
+    )
+    return response.choices[0].message.content.strip()
+
+def get_chat_response(client: OpenAI, payload: list[dict[str,str]]) -> tuple[str, str]:
+    """Get chat response"""
     response = client.chat.completions.create(
         model=API_CONFIG["model"], messages=payload, stream=True
     )
     reply_chunk, reasoning_chunk = [], []
+    full_reply = ""
     has_reasoning = False
-    with console.status("[bold green]think...[/bold green]") as status:
+    with console.status("[bold green]Thinking...[/bold green]") as status:
         for chunk in response:
             if chunk.choices[0].delta.content:
                 content = chunk.choices[0].delta.content
                 reply_chunk.append(content)
+                full_reply += content
             
             if hasattr(chunk.choices[0].delta, 'reasoning_content') and chunk.choices[0].delta.reasoning_content:
                 has_reasoning = True
@@ -77,100 +98,118 @@ def get_chat_response(client, payload):
         
     return "".join(reply_chunk), "".join(reasoning_chunk)
 
+def decode_output(output_bytes: bytes) -> str:
+    """Try to decode byte string using common encodings."""
+    encodings = ['utf-8', 'gbk', 'cp936']  # Common encodings, especially for Windows
+    for enc in encodings:
+        try:
+            return output_bytes.decode(enc)
+        except UnicodeDecodeError:
+            #print(f"Decoding with {enc} failed, trying next encoding...")
+            continue
+    # Default to UTF-8 with error replacement
+    return output_bytes.decode('utf-8', errors='replace')
 
-def execute_command(cmd):
-    # Execute the command and keep the color output
+
+def execute_command(command: str) -> tuple[bool, str]:
+    """Execute the command and return its output."""
     try:
         process = subprocess.Popen(
-            cmd,
+            command,
             shell=True,
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            universal_newlines=True,
+            stderr=subprocess.PIPE
         )
-        stdout, stderr = process.communicate()
+        stdout_bytes, stderr_bytes = process.communicate()
+        stdout = decode_output(stdout_bytes)
+        stderr = decode_output(stderr_bytes)
 
         if process.returncode == 0:
             return True, stdout
         else:
-            return False, stderr
+            error_output = stderr if stderr.strip() else stdout
+            return False, error_output.strip()
     except Exception as e:
         return False, str(e)
 
 
 rejudge = False
 rejudge_count = 0
-while True:
-    try:
-        if not rejudge:
-            rejudge = False
-            user_input = Prompt.ask("[bold blue]Smart_Shell[/bold blue]")
 
-            if user_input.lower() in ["/exit", "exit", "/quit"]:
-                console.print("[yellow]Goodbye![/yellow]")
-                break
-
-            payload.append({"role": "user", "content": user_input})
-
-        reply, reasoning = get_chat_response(client, payload)
-
+if __name__ == "__main__":
+    while True:
         try:
-            pattern = re.compile(r"```json\n(.*?)\n```", re.S)
-            if pattern.search(reply):
-                reply = pattern.findall(reply)[0]
-            command = json.loads(reply)
-            payload.append({"role": "assistant", "content": reply})
-            rejudge = False
-            rejudge_count = 0
-            if command["action"] == "execute_command":
-                console.print(
-                    f"[bold yellow]Executing command:[/bold yellow] {command['command']}"
-                )
-                console.print(f"[dim]{command.get('explanation', '')}[/dim]")
+            if not rejudge:
+                rejudge = False
+                user_input = Prompt.ask("[bold blue]Smart_Shell[/bold blue]")
 
-                confirm = Prompt.ask("Execute?", choices=["y", "n"], default="n")
+                if user_input.lower() in ["/exit", "exit", "quit"]:
+                    console.print("[yellow]Goodbye![/yellow]")
+                    break
 
-                if confirm == "y":
-                    success, result = execute_command(command["command"])
-                    print("\n" + result)
+                payload.append({"role": "user", "content": user_input})
 
-                    if success:
-                        payload.append({"role": "assistant", "content": result})
-                    else:
-                        console.print(f"[red]Execution failed:[/red] {result}")
+            reply, reasoning = get_chat_response(client, payload)
+
+            try:
+                pattern = re.compile(r"```json\n(.*?)\n```", re.S)
+                if pattern.search(reply):
+                    reply = pattern.findall(reply)[0]
+                command = json.loads(reply)
+                payload.append({"role": "assistant", "content": reply})
+                rejudge = False
+                rejudge_count = 0
+                if command["action"] == "execute_command":
+                    console.print(
+                        f"[bold yellow]Executing command:[/bold yellow] {command['command']}"
+                    )
+                    console.print(f"[dim]{command.get('explanation', '')}[/dim]")
+
+                    confirm = Prompt.ask("Execute?", choices=["y", "n"], default="n")
+
+                    if confirm == "y":
+                        success, result = execute_command(command["command"])
+                        print("\n" + result)
+
+                        # Add verification logic
+                        verification = check_result(client, user_input, result)
+                        console.print(f"[dim]Verification result {verification}[/dim]")
+
+                        payload.append({"role": "assistant", "content": result+ "\n Verification result: " +verification})
                         payload.append(
                             {
-                                "role": "assistant",
-                                "content": f"Execution failed: {result}",
+                                "role": "user",
+                                "content": "How was the result of the tool execution? Please provide a brief summary using the direct reply template.",
                             }
                         )
-                else:
-                    console.print("[yellow]Execution cancelled[/yellow]")
-                    payload.append(
-                        {"role": "assistant", "content": "Execution cancelled"}
-                    )
+                        rejudge = True  # Set the flag to let the LLM handle this summary request in the next round
+                    else:
+                        console.print("[yellow]Execution cancelled[/yellow]")
+                        payload.append({"role": "assistant", "content": "Execution cancelled"})
 
-            elif command["action"] == "direct_reply":
-                md = Markdown(command["content"])
-                console.print(Panel(md, title="Reply", border_style="blue"))
+                elif command["action"] == "direct_reply":
+                    # Direct reply with Markdown formatting
+                    md = Markdown(command["content"])
+                    console.print(Panel(md, title="Reply", border_style="blue"))
 
-        except json.JSONDecodeError:
-            console.print(f"[red]Unable to parse the result:[/red]\n {reply}")
-            payload.append(
-                {
-                    "role": "system",
-                    "content": "Please provide a response in the correct format using JSON and avoid any markdown markup.",
-                }
-            )
-            rejudge = True
-            rejudge_count += 1
-            if rejudge_count > 3:
-                console.print( "[red] [!] Unable to parse the result too many times, exiting![/red]")
-                break
+            except json.JSONDecodeError:
+                console.print(f"[red]Unable to parse result:[/red]\n {reply}")
+                payload.append(
+                    {
+                        "role": "system",
+                        "content": "Please provide a reply in the correct format (JSON only, no markdown tags).",
+                    }
+                )
+                rejudge = True
+                rejudge_count += 1
+                if rejudge_count > 3:
+                    print(f"[red] [!] Too many parsing failures, exiting![/red]")
+                    break
 
-    except KeyboardInterrupt:
-        console.print("\n[yellow]Use /exit to exit[/yellow]")
-        continue
-    except Exception as error:
-        console.print(f"[red]An error occurred:[/red] {str(error)}")
-        continue
+        except KeyboardInterrupt:
+            console.print("\n[yellow]Use /exit to quit the program[/yellow]")
+            continue
+        except Exception as error:
+            console.print(f"[red]Error occurred:[/red] {str(error)}")
+            continue
+
