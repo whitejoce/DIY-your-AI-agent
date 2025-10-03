@@ -1,9 +1,16 @@
 #!/usr/bin/env python
-# _*_coding: utf-8 _*_
-# Coder: Whitejoce
+# -*- coding: utf-8 -*-
+# Author: Whitejoce
+# use GPT-5 Codex optimized
 
-import re, json
+import re
+import json
 import subprocess
+import os
+import pathlib
+from dataclasses import dataclass, field
+from enum import Enum, auto
+from typing import Dict, List
 
 from openai import OpenAI
 from rich.console import Console
@@ -11,114 +18,208 @@ from rich.prompt import Prompt
 from rich.panel import Panel
 from rich.markdown import Markdown
 
-# API configuration
-API_CONFIG = {
-    "url": "your_url",
-    "api_key": "",  # Enter your API key here
-    "model": "Qwen/Qwen2.5-7B-Instruct",
-}
-# Validate API configuration
-assert (
-    API_CONFIG["url"] != "your_url" and API_CONFIG["api_key"] != ""
-), "Please provide a valid url and api_key"
+class Agent:
+    """Agent centralizes the state (API, prompt) and operations (max retry count)."""
+    # check the API_SLOTS and SYSTEM_PROMPT before using
+    API_SLOTS = {
+        "openai": {
+            "url": "https://api.openai.com/v1",
+            "api_key": "your_api_key",
+            "model": "gpt-4o",
+        },
+        "longcat": {
+            "url": "https://api.longcat.chat/openai/v1/",
+            "api_key": "your_api_key",
+            "model": "LongCat-Flash-Chat",
+        },
+    }
+    setting_api = "openai"  # default api slot name
 
-# System prompt
-SYSTEM_PROMPT = """
-You are a Linux terminal assistant Agent. Please strictly follow the rules below:
+    SYSTEM_PROMPT = """
+    You are a Linux terminal assistant agent. Please strictly follow these rules:
+    1. When the user requests system operations, produce the corresponding terminal command. When replying directly, use Markdown formatting.
+    2. Dangerous commands must be confirmed a second time before execution.
+    3. Execute only one command at a time.
+    4. If the user asks to switch to a specific directory, instruct them to use the /cd command to change directories.
+    5. Always format the output as JSON with one of the following structures:
+       {
+           "action": "execute_command",
+           "command": "ls -l",
+           "explanation": "Use ls to list detailed information in the current directory"
+       }
+       or
+       {
+           "action": "direct_reply",
+           "content": "Hello, how can I help you today?"
+       }
+    """.strip()
 
-Rules:
+    def __init__(self, api_slot_name: str, max_turns: int = 20):
+        self.console = Console()
+        self.api_config = self._setup_api_config(api_slot_name)
+        self.client = OpenAI(api_key=self.api_config["api_key"], base_url=self.api_config["url"])
+        self.session = SessionContext(system_prompt=self.SYSTEM_PROMPT, max_turns=max_turns)
 
-1. When the user requests system operations, generate the corresponding terminal command (ensure Bash compatibility)
-2. Dangerous commands must require secondary confirmation before execution
-3. The output format must always be JSON, structured as follows:
+    def _setup_api_config(self, api_slot_name: str) -> dict:
+        """Configure and validate the API by name."""
 
-{
-  "action": "execute_command",
-  "command": "ls -l",
-  "explanation": "List detailed information of the current directory using the ls tool"
-}
+        config = self.API_SLOTS.get(api_slot_name)
+        if not config:
+            raise ValueError(f"API slot '{api_slot_name}' not found.")
 
-or
+        assert (
+            config["url"] != "your_url" and config["api_key"] != "your_api_key"
+        ), "Please provide a valid url and api_key"
+        return config
 
-{
-  "action": "direct_reply",
-  "content": "Hello, how can I help you?"
-}
-"""
+    def check_result(self, user_input: str, command_output: str) -> str:
+        """Verify whether the command output meets the user's expectation."""
 
-# Initialize Rich components
-console = Console()
+        prompt = f"""
+        You are a task validation assistant. Based on the information below, determine whether the command met the user's expectation.
 
-# Initialize OpenAI client
-client = OpenAI(api_key=API_CONFIG["api_key"], base_url=API_CONFIG["url"])
+        User request: {user_input}
+        Command output: {command_output}
 
-payload = [{"role": "system", "content": SYSTEM_PROMPT}]
+        Respond with:
+        - If it met the expectation, output "[✅] Success"
+        - If it did not, output "[❌] Failure: explain the reason"
+        """.strip()
+        response = self.client.chat.completions.create(
+            model=self.api_config["model"],
+            messages=[{"role": "system", "content": prompt}],
+        )
+        content = response.choices[0].message.content
+        return content.strip() if content else ""
 
-def check_result(model_client, user_input, command_output) -> str:
-    prompt = f"""
-You are a task verification assistant. Based on the following information, determine whether the command met the user's expectations.
+def get_chat_response(agent: Agent) -> tuple[str, str]:
+    """Fetch the chat response."""
 
-User request: {user_input}
-Command output: {command_output}
-
-Please answer:
-- If the expectation is met, output "[✅] Success"
-- If not, output "[❌] Failure: Reason"
-    """
-    response = model_client.chat.completions.create(
-        model=API_CONFIG["model"],
-        messages=[{"role": "system", "content": prompt}]
-    )
-    return response.choices[0].message.content.strip()
-
-def get_chat_response(client: OpenAI, payload: list[dict[str,str]]) -> tuple[str, str]:
-    """Get chat response"""
-    response = client.chat.completions.create(
-        model=API_CONFIG["model"], messages=payload, stream=True
+    response = agent.client.chat.completions.create(
+        model=agent.api_config["model"],
+        messages=agent.session.as_payload(),  # type: ignore[arg-type]
+        stream=True,
     )
     reply_chunk, reasoning_chunk = [], []
-    full_reply = ""
     has_reasoning = False
     with console.status("[bold green]Thinking...[/bold green]") as status:
         for chunk in response:
             if chunk.choices[0].delta.content:
                 content = chunk.choices[0].delta.content
                 reply_chunk.append(content)
-                full_reply += content
-            
-            if hasattr(chunk.choices[0].delta, 'reasoning_content') and chunk.choices[0].delta.reasoning_content:
+
+            reasoning_content = getattr(chunk.choices[0].delta, "model_extra", {}).get("reasoning_content")
+            if reasoning_content:
                 has_reasoning = True
-                reasoning_content = chunk.choices[0].delta.reasoning_content
                 reasoning_chunk.append(reasoning_content)
                 status.stop()
                 console.print(reasoning_content, end="")
-                
+
     if has_reasoning:
         print()
-        
     return "".join(reply_chunk), "".join(reasoning_chunk)
 
+@dataclass
+class SessionContext:
+    """SessionContext keeps shell state, chat history, and a finite state machine."""
+
+    class State(Enum):
+        AWAITING_USER_INPUT = auto()
+        AWAITING_MODEL_RESPONSE = auto()
+
+    system_prompt: str
+    max_turns: int = 20
+    messages: List[Dict[str, str]] = field(default_factory=list)
+    retry_threshold: int = 3
+    state: "SessionContext.State" = field(init=False, default=State.AWAITING_USER_INPUT)
+    retry_count: int = field(init=False, default=0)
+
+    def __post_init__(self):
+        self.messages.append({"role": "system", "content": self.system_prompt})
+
+    # --- Chat history management ---
+    def add_message(self, role: str, content: str):
+        self.messages.append({"role": role, "content": content})
+        self._trim_history()
+
+    def add_user(self, content: str):
+        self.add_message("user", content)
+
+    def add_assistant(self, content: str):
+        self.add_message("assistant", content)
+
+    def add_system(self, content: str):
+        self.add_message("system", content)
+
+    # Limit chat history length to max_turns * 2
+    def _trim_history(self):
+        if self.max_turns <= 0:
+            return
+        max_messages = self.max_turns * 2
+        overflow = len(self.messages) - 1 - max_messages
+        if overflow > 0:
+            del self.messages[1 : 1 + overflow]
+
+    def as_payload(self) -> List[Dict[str, str]]:
+        return [msg.copy() for msg in self.messages]
+
+    # --- Shell state management ---
+    @property
+    def cwd(self) -> pathlib.Path:
+        return pathlib.Path.cwd()
+
+    def change_directory(self, path: str) -> tuple[bool, str]:
+        try:
+            target_path = pathlib.Path(path).expanduser()
+            os.chdir(target_path)
+            return True, f"Switched to directory: {os.getcwd()}"
+        except FileNotFoundError:
+            return False, f"[red]Error: directory '{path}' does not exist.[/red]"
+        except Exception as e:
+            return False, f"[red]Error while changing directory: {e}[/red]"
+
+    # --- State machine ---
+    @property
+    def awaiting_user_input(self) -> bool:
+        return self.state == self.State.AWAITING_USER_INPUT
+
+    def advance_state(self, new_state: "SessionContext.State"):
+        self.state = new_state
+        if new_state == self.State.AWAITING_USER_INPUT:
+            self.reset_retry_count()
+
+    def reset_retry_count(self):
+        self.retry_count = 0
+
+    def register_retry_failure(self):
+        self.retry_count += 1
+
+    def has_exceeded_retry_threshold(self) -> bool:
+        return self.retry_count > self.retry_threshold
+
+
 def decode_output(output_bytes: bytes) -> str:
-    """Try to decode byte string using common encodings."""
-    encodings = ['utf-8', 'gbk', 'cp936']  # Common encodings, especially for Windows
+    """Attempt to decode byte strings with common encodings."""
+
+    encodings = ["utf-8", "gbk", "cp936"]
     for enc in encodings:
         try:
             return output_bytes.decode(enc)
         except UnicodeDecodeError:
-            #print(f"Decoding with {enc} failed, trying next encoding...")
             continue
-    # Default to UTF-8 with error replacement
-    return output_bytes.decode('utf-8', errors='replace')
+    return output_bytes.decode("utf-8", errors="replace")
 
 
-def execute_command(command: str) -> tuple[bool, str]:
-    """Execute the command and return its output."""
+def execute_command(command: str, cwd: str) -> tuple[bool, str]:
+    """Execute a command and return its output."""
+
     try:
         process = subprocess.Popen(
             command,
             shell=True,
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
+            stderr=subprocess.PIPE,
+            cwd=cwd,
         )
         stdout_bytes, stderr_bytes = process.communicate()
         stdout = decode_output(stdout_bytes)
@@ -126,90 +227,116 @@ def execute_command(command: str) -> tuple[bool, str]:
 
         if process.returncode == 0:
             return True, stdout
-        else:
-            error_output = stderr if stderr.strip() else stdout
-            return False, error_output.strip()
+        error_output = stderr if stderr.strip() else stdout
+        return False, error_output.strip()
     except Exception as e:
         return False, str(e)
 
-
-rejudge = False
-rejudge_count = 0
+agent = Agent(api_slot_name=Agent.setting_api)
+console = agent.console
+session = agent.session
+check_result = agent.check_result
 
 if __name__ == "__main__":
+    user_input = ""
     while True:
         try:
-            if not rejudge:
-                rejudge = False
-                user_input = Prompt.ask("[bold blue]Smart_Shell[/bold blue]")
+            if session.awaiting_user_input:
+                prompt_text = "[bold blue]" + f" {session.cwd} Smart_Shell> " + "[/bold blue]"
+                user_input = Prompt.ask(prompt_text)
 
                 if user_input.lower() in ["/exit", "exit", "quit"]:
                     console.print("[yellow]Goodbye![/yellow]")
                     break
 
-                payload.append({"role": "user", "content": user_input})
+                if user_input.strip().startswith("/cd "):
+                    path = user_input.strip().split(" ", 1)[1]
+                    _, message = session.change_directory(path)
+                    console.print(message)
+                    continue
 
-            reply, reasoning = get_chat_response(client, payload)
+                session.add_user(user_input)
+                session.advance_state(SessionContext.State.AWAITING_MODEL_RESPONSE)
+                continue
+
+            reply, _ = get_chat_response(agent)
 
             try:
                 pattern = re.compile(r"```(?:json)?\n(.*?)\n```", re.S)
                 if pattern.search(reply):
                     reply = pattern.findall(reply)[0]
                 command = json.loads(reply)
-                payload.append({"role": "assistant", "content": reply})
-                rejudge = False
-                rejudge_count = 0
-                if command["action"] == "execute_command":
+                session.add_assistant(reply)
+                session.reset_retry_count()
+
+                action = command.get("action")
+
+                if action == "execute_command":
                     console.print(
-                        f"[bold yellow]Executing command:[/bold yellow] {command['command']}"
+                        f"[bold yellow]Executing command:[/bold yellow] {command.get('command', '')}"
                     )
                     console.print(f"[dim]{command.get('explanation', '')}[/dim]")
 
-                    confirm = Prompt.ask("Execute?", choices=["y", "n"], default="n")
+                    confirm_prompt = "Execute command?"
+                    confirm = Prompt.ask(confirm_prompt, choices=["y", "n"], default="n")
 
                     if confirm == "y":
-                        success, result = execute_command(command["command"])
+                        cmd_to_run_raw = command.get("command")
+                        cmd_to_run = str(cmd_to_run_raw).strip() if cmd_to_run_raw is not None else ""
+                        if not cmd_to_run:
+                            console.print("[red]No executable command provided. Ignored.[/red]")
+                            session.advance_state(SessionContext.State.AWAITING_USER_INPUT)
+                            continue
+
+                        run_success, result = execute_command(cmd_to_run, str(session.cwd))
                         print("\n" + result)
 
-                        # Add verification logic
-                        verification = check_result(client, user_input, result)
+                        verification = check_result(user_input, result)
                         console.print(f"[dim]Verification result {verification}[/dim]")
 
-                        payload.append({"role": "assistant", "content": result+ "\n Verification result: " +verification})
-                        payload.append(
-                            {
-                                "role": "user",
-                                "content": "How was the result of the tool execution? Please provide a brief summary using the direct reply template.",
-                            }
+                        if not run_success:
+                            console.print("[yellow]Command returned a non-zero exit code.[/yellow]")
+
+                        session.add_assistant(result + "\n Verification result: " + verification)
+                        session.add_user(
+                            "How did the tool invocation go? Please provide a brief summary using the direct reply template."
                         )
-                        rejudge = True  # Set the flag to let the LLM handle this summary request in the next round
+                        session.advance_state(SessionContext.State.AWAITING_MODEL_RESPONSE)
+                        continue
                     else:
                         console.print("[yellow]Execution cancelled[/yellow]")
-                        payload.append({"role": "assistant", "content": "Execution cancelled"})
+                        session.add_assistant("Execution cancelled")
+                        session.advance_state(SessionContext.State.AWAITING_USER_INPUT)
+                        continue
 
-                elif command["action"] == "direct_reply":
-                    # Direct reply with Markdown formatting
-                    md = Markdown(command["content"])
+                elif action == "direct_reply":
+                    md = Markdown(command.get("content", ""))
                     console.print(Panel(md, title="Reply", border_style="blue"))
+                    session.advance_state(SessionContext.State.AWAITING_USER_INPUT)
+                    continue
+                else:
+                    console.print(f"[red]Unknown action: {command.get('action')}[/red]")
+                    session.advance_state(SessionContext.State.AWAITING_USER_INPUT)
+                    continue
 
             except json.JSONDecodeError:
-                console.print(f"[red]Unable to parse result:[/red]\n {reply}")
-                payload.append(
-                    {
-                        "role": "system",
-                        "content": "Please provide a reply in the correct format (JSON only, no markdown tags).",
-                    }
+                console.print(f"[red]Unable to parse the response:[/red]\n {reply}")
+                session.add_system(
+                    "Please respond in JSON format without any markdown markers from now on."
                 )
-                rejudge = True
-                rejudge_count += 1
-                if rejudge_count > 3:
-                    print(f"[red] [!] Too many parsing failures, exiting![/red]")
+                session.register_retry_failure()
+                session.advance_state(SessionContext.State.AWAITING_MODEL_RESPONSE)
+                if session.has_exceeded_retry_threshold():
+                    console.print("[red][!] Too many parsing failures, exiting![/red]")
                     break
 
         except KeyboardInterrupt:
             console.print("\n[yellow]Use /exit to quit the program[/yellow]")
+            if not session.awaiting_user_input:
+                session.advance_state(SessionContext.State.AWAITING_USER_INPUT)
             continue
         except Exception as error:
-            console.print(f"[red]Error occurred:[/red] {str(error)}")
+            console.print(f"[red]An error occurred:[/red] {str(error)}")
+            if not session.awaiting_user_input:
+                session.advance_state(SessionContext.State.AWAITING_USER_INPUT)
             continue
-
