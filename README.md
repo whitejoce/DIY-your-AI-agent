@@ -6,105 +6,89 @@
   <a href="https://github.com/whitejoce/mcp_agent">yet-another-mcp-implementation</a>
 </p>
 
+## 🔥 Project Overview
 
-## 🔥 Project Overview  
-
-This project is an **AI-powered smart terminal assistant (Linux Agent) based on Large Language Models (LLM)**. It automatically analyzes user input, determines whether a terminal command needs to be executed, and returns results in **JSON format**, ensuring secure interactions.  
+This project is a **Linux terminal Agent powered by LLMs**. It analyzes user input, decides whether a terminal command should be executed, and always returns the result in **JSON format**.
 
 <img src="./img/test_en.png" alt="Example">
 
-**Collaboration Process Between Conversation and Command Execution:**  
-```plaintext
-User Input → LLM Intent Recognition → Determine if Command Execution is Needed →  
-   → Yes: LLM Generates Command → Execute Command → Return Result → Generate Natural Language Response  
-   → No: Directly Generate Natural Language Response  
-```
-**Key Features:**  
-- 🖥 **Intelligent Parsing**: Determines whether user requests involve file operations, process management, etc.  
-- 🔒 **Security Protection**: Automatically prompts for confirmation when encountering dangerous commands (e.g., `rm -rf`).  
-- 🔄 **Interactive Experience**: Provides structured JSON responses to ensure readability and scalability.  
-- ⚡ **Instant Execution**: Automatically executes commands in the Bash terminal upon user confirmation and returns results.  
-
-## 🛠 Example Usage  
-
-Start the interactive smart terminal:  
-```bash
-python agent_en.py
-```
-Then enter any Linux-related command, for example:  
-
-```plaintext
-Smart_Shell> Show the files in the current directory
-```
-
-**Agent Response (JSON Format):**  
-```json
-{
-  "action": "execute_command",
-  "command": "ls -l",
-  "explanation": "Lists detailed information of the current directory"
-}
-```
-If the command is potentially dangerous, such as `rm -rf`, the system will automatically prompt for a second confirmation.  
-
 ---
 
-## 📖 How It Works  
+## 📖 How It Works
 
-This AI Agent operates based on **LLM + rule constraints**, with core logic including:  
+This AI Agent is based on **LLM + rule constraints**, with core logic including:  
 
-1. **LLM-based reasoning**: Uses models like Qwen/Qwen2.5-7B-Instruct (or other LLMs) to analyze user input.  
-2. **Rule-based guidance**: Ensures AI responses comply with predefined formats (e.g., JSON output).  
-3. **Interactive mechanism**: Users manually confirm commands to prevent accidental operations.  
-4. **Terminal execution**: Uses `subprocess.Popen()` to run Bash commands and return execution results.  
+1. **Rules & Interaction**
+   - Enforces predefined rules (such as JSON response shape) so replies stay predictable.
+   - Directory changes must use the `/cd <path>` command.
+2. **Command Execution**
+   - Runs terminal commands through `subprocess.Popen()` and captures the output.
+3. **Result Verification**
+   - Invokes `check_result()` to ask the LLM whether the command output met the user’s expectation, then reports the conclusion.
 
 > The simplified version of the code (MVP): You can check `agent_mvp_en.py` to browse it.
+
 ---
 
-## 🚀 Quick Start  
+## 🚀 Getting Started
 
-### 1️⃣ **Environment Setup**  
+### Environment Setup
 
-Requires **Python 3.8+**, and install the necessary dependencies:  
+* Requires **Python 3.8+** and the `openai` + `rich` packages:
+
 ```bash
-pip install openai rich
-```  
+pip install -r requirements.txt
+```
 
-### 2️⃣ **Configure API**  
+### Configure the API
 
-Modify `agent_en.py`:  
+* `agent_en.py` manages multiple model configurations via `Agent.API_SLOTS`. Update them to match your environment:
+
 ```python
-url = "your_api_url"
-api_key = "your_api_key"
-```  
+Agent.API_SLOTS = {
+   "openai": {
+      "url": "https://api.openai.com/v1",
+      "api_key": "your_api_key",
+      "model": "gpt-4o",
+   },
+   # ...
+}
+
+agent = Agent(api_slot_name="openai")  # Or switch to your custom slot
+```
+
+> **Note:** Ensure the selected slot has the correct `url` and `api_key`. Feel free to add additional model profiles.
 
 ---
 
-## 💡 How to Improve?  
+## 💡 Ways to Level Up
 
-If you want to make this Agent more intelligent and powerful, consider the following approaches:  
+Want to make the agent even smarter? Try these ideas:
 
-1️⃣ *Ask the Friendly AI* 🤖  
-   - Engage in discussions with the model directly in the terminal to refine your ideas.  
-   - Ask questions like: "How can I make the Agent more autonomous?" or "How can I optimize my terminal assistant?"  
+1️⃣ **Talk directly with the AI** — *Ask the Friendly AI* 🤖  
+   - Learn how tools like [Cursor](https://cursor.com/) and [Claude Code](https://claude.com/product/claude-code) work.
+   - Ask questions such as “How can I make this agent smarter?”
+   *See also*: 
+        - Retrieval-Augmented Generation (RAG), vector databases
+        - Prompt engineering vs. Context engineering.
 
-2️⃣ **Model Context Protocol (MCP) 🏗️**  
-   - MCP (Model Context Protocol) is an open protocol designed to seamlessly integrate Large Language Models (LLMs) with external data sources and tools.  
-   - By standardizing interactions between AI systems and data sources, MCP enables models to generate more accurate and contextually relevant responses.  
-   - Refer to the [MCP Documentation](https://modelcontextprotocol.io/introduction) and [FastMCP](https://gofastmcp.com/getting-started/welcome) to learn more.  
+2️⃣ **Context Management** 📚 
+   - Persist conversation history, user preferences, and environment details.
+   - Extend `SessionContext` for better context.
 
-3️⃣ **AI-driven Automation Scripts 🚀**  
-   - Enable AI not just to execute commands but also to **invoke other automation scripts**, forming a more adaptive workflow.  
-   - Write automation scripts for tasks like **batch file organization or automated log analysis**, and let AI call those `best practices` at appropriate times to achieve higher-level intelligent automation.  
+3️⃣ **Model Context Protocol (MCP)** 🏗️  
+   - MCP is an open protocol that bridges LLMs with external tools and data sources.
+   - By standardizing this interaction, MCP helps models retrieve richer context and craft more relevant responses.
+   - Explore the [official MCP docs](https://modelcontextprotocol.io/introduction) and [FastMCP](https://gofastmcp.com/getting-started/welcome) to get started.
 
-By implementing these improvements, your AI terminal assistant can evolve beyond just a "command parser" into a truly intelligent Agent! 💡✨  
+These directions turn your AI helper into much more than a "command parser"—it becomes a truly intelligent agent! 💡✨
 
 ---
 
-## 📜 License  
+## 📜 License
 
-This project is licensed under the **MIT License**—feel free to modify and use it!  
+This project is released under the **MIT License**.
 
-## 🤝 Contributions  
+## 🤝 Contributions
 
-Issues & PRs are welcome! If you have better ideas, feel free to contribute code!  
+Issues & PRs are welcome! If you have better ideas, feel free to contribute code! 
