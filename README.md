@@ -16,17 +16,27 @@ This project is a **Linux terminal Agent powered by LLMs**. It analyzes user inp
 
 ## 📖 How It Works
 
-This AI Agent is based on **LLM + rule constraints**, with core logic including:  
+This project uses a **Context Management + State Machine + Judge Agent** architecture to intelligently parse and execute commands:
 
-1. **Rules & Interaction**
-   - Enforces predefined rules (such as JSON response shape) so replies stay predictable.
-   - Directory changes must use the `/cd <path>` command.
-2. **Command Execution**
-   - Runs terminal commands through `subprocess.Popen()` and captures the output.
-3. **Result Verification**
-   - Invokes `check_result()` to ask the LLM whether the command output met the user’s expectation, then reports the conclusion.
+> Check out the prompt design details: [`prompt.md`](./docs/prompt.md)
 
-> The simplified version of the code (MVP): You can check `agent_mvp_en.py` to browse it.
+1. **Rule Constraints & Interaction Design**  
+   - Predefined rules (like strict JSON output format) ensure the LLM's responses are always parsable  
+   - Special command handling: Directory changes always use the `/cd <path>` command to keep session state consistent  
+
+2. **Context Management**  
+   - Maintains a `SessionContext` that tracks the current working directory, command history, and other session info  
+   - Injects system environment details into the prompt, helping the model better understand the execution context  
+
+3. **Terminal Command Execution**  
+   - Uses `subprocess.Popen()` to run commands in a real shell environment  
+   - Captures stdout/stderr streams and returns execution results in real-time  
+
+4. **Judge Agent Result Validation**  
+   - After a command runs, calls `check_result()` to let the LLM act as a "judge" and analyze the output  
+   - Automatically determines if the command succeeded or needs follow-up actions, creating a closed feedback loop
+
+> The simplified version of the code (MVP): You can check [agent_mvp_en.py](./agent_mvp_en.py)  to browse it.
 
 ---
 
@@ -65,12 +75,14 @@ agent = Agent(api_slot_name="openai")  # Or switch to your custom slot
 
 Want to make the agent even smarter? Try these ideas:
 
-1️⃣ **Talk directly with the AI** — *Ask the Friendly AI* 🤖  
+1️⃣ *Ask the Friendly AI* 🤖  
    - Learn how tools like [Cursor](https://cursor.com/) and [Claude Code](https://claude.com/product/claude-code) work.
    - Ask questions such as “How can I make this agent smarter?”
    *See also*: 
-        - Retrieval-Augmented Generation (RAG), vector databases
-        - Prompt engineering vs. Context engineering.
+      - Retrieval-Augmented Generation (RAG), vector databases
+      - Prompt engineering vs. Context engineering
+      - Multi-Agent, `A2A protocol`: `agent.json`
+      - `Function Calling`, constrained output, SFT fine-tuning
 
 2️⃣ **Context Management** 📚 
    - Persist conversation history, user preferences, and environment details.
