@@ -1,6 +1,9 @@
 # DIY Your AI Agent: 基于大模型的智能终端助手
 
 > 使用MCP实现的AI Agent: [MCP Agent Demo](https://github.com/whitejoce/mcp_agent)
+>
+**本项目是 [whitejoce/AI-Agent-Toolkit](https://github.com/whitejoce) 技术栈的一部分，专注于 Agent 层。**  
+完整技术路线：[RAG](https://github.com/whitejoce/RAG-Demo)（企业知识库） → [Agent](https://github.com/whitejoce/DIY-your-AI-agent) → [Tool Runtime](https://github.com/whitejoce/ToolFlow)（可热加载的MCP Tools平台）
 
 ## 🔥 项目简介  
 
