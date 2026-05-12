@@ -6,6 +6,9 @@
   <a href="https://github.com/whitejoce/mcp_agent">yet-another-mcp-implementation</a>
 </p>
 
+**This project is part of the [whitejoce/AI-Agent-Toolkit](https://github.com/whitejoce) tech stack, focusing on the Agent layer.**  
+Full architecture: [RAG (Enterprise Knowledge Base)](https://github.com/whitejoce/RAG-Demo) → [Agent](https://github.com/whitejoce/DIY-your-AI-agent) → [Tool Runtime (Hot-reloadable MCP Tools Platform)](https://github.com/whitejoce/ToolFlow)
+
 ## 🔥 Project Overview
 
 This project is a **Linux terminal Agent powered by LLMs**. It analyzes user input, decides whether a terminal command should be executed, and always returns the result in **JSON format**.
