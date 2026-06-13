@@ -4,10 +4,10 @@
    <img alt="Python" src="https://img.shields.io/badge/Python-3.8%2B-blue">
    <img alt="OpenAI SDK" src="https://img.shields.io/badge/OpenAI%20SDK-1.35%2B-111827">
    <img alt="License" src="https://img.shields.io/badge/License-MIT-green">
+   <a href="https://deepwiki.com/whitejoce/DIY-your-AI-agent"><img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki"></a>
 </p>
 <p align="center">
-  <a href="./README_CN.md">中文文档</a> |
-  <a href="https://deepwiki.com/whitejoce/DIY-your-AI-agent">deepwiki</a>
+  <a href="./README_CN.md">中文文档</a>
 </p>
 
 **This project is part of the [whitejoce/AI-Agent-Toolkit](https://github.com/whitejoce) stack, focusing on the Agent layer.**  
