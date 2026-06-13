@@ -17,7 +17,7 @@ Full architecture: [RAG (Enterprise Knowledge Base)](https://github.com/whitejoc
 ## 🔥 Project Overview
 > Translated by GPT-5.5
 
-This is a minimal runnable AI Agent example. It does not depend on frameworks such as LangChain or LangGraph. The project is designed to be lightweight, readable, and easy to modify, making it suitable for learning the basic structure of an Agent and its tool-calling mechanism.
+A lightweight, framework-free AI Agent example. Built without LangChain or LangGraph, it prioritizes readability and simplicity to help you understand core Agent architecture.
 
 <p align="center">
    <img src="./img/demo.png" alt="DIY Your AI Agent demo" width="900" style="border:1px solid #ccc; border-radius:8px;">
