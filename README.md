@@ -68,10 +68,10 @@ Keep `Mini Agent` as the learning and testing base. A more complete version can 
 
 - LLM APIs
    - OpenAI [Responses API](https://developers.openai.com/api/docs/guides/migrate-to-responses#about-the-responses-api) and `Chat Completions API`
-   - Anthropic [Messages API](https://platform.claude.com/docs/zh-CN/build-with-claude/working-with-messages)
-- [MCP](https://modelcontextprotocol.io/introduction), [Skills](https://developers.openai.com/api/docs/guides/skills), and progressive disclosure
+   - Anthropic [Messages API](https://platform.claude.com/docs/en/build-with-claude/working-with-messages)
+- [MCP](https://modelcontextprotocol.io/introduction), [Skills](https://developers.openai.com/api/docs/guides/skills): progressive disclosure
    - Context engineering vs. harness engineering
-   - Function calling and [Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs)
+   - Function calling, [Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs), Hooks
 - Agentic AI
    - Why are prompts becoming less central?
    - Observability and orchestration: logs, tool-call traces, error tracking, and performance monitoring
@@ -82,11 +82,11 @@ Keep `Mini Agent` as the learning and testing base. A more complete version can 
    - ADK: `A2A protocol` and `agent.json`
    - Design patterns behind frameworks such as LangGraph and LangChain
 - LLM output quality
-   - Metrics: accuracy, completeness, length, and reasoning path
+   - Correctness, Completeness, Size, Trjectory: [No Vibes Allowed: Solving Hard Problems in Complex Codebases – Dex Horthy, HumanLayer](https://www.youtube.com/watch?v=rmvDxxNubIg)
 
 ### 2. Context Management Trade-offs
 
-Recommended: [Claude Code's animated context-window demo](https://code.claude.com/docs/zh-CN/context-window).
+Recommended: [Claude Code's animated context-window demo](https://code.claude.com/docs/en/context-window).
 
 - Short-term memory: select and preserve the most relevant information in the current conversation
    - What is the `dumb zone`?
