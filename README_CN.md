@@ -20,7 +20,7 @@
 
 当前仓库里的MVP示例放在 [`mini_agent/`](./mini_agent/) 目录下。
 
-- 使用说明：[mini_agent/README.md](./mini_agent/README.md)
+- 使用说明：[mini_agent/README_CN.md](./mini_agent/README_CN.md)
 - 入口文件：`mini_agent/agent.py`
 - 工具定义：`mini_agent/tools.py`
 
@@ -59,21 +59,21 @@
 
 ## 💡 See Also
 
-### 1. Ask the Friendly AI
+### 1. 和SOTA模型交流素材
 
 - LLM API
   - OpenAI [Responses API](https://developers.openai.com/api/docs/guides/migrate-to-responses#about-the-responses-api)、`Chat Completions API`
   - Anthropic [Messages API](https://platform.claude.com/docs/zh-CN/build-with-claude/working-with-messages)
-- [MCP 协议](https://modelcontextprotocol.io/introduction)、[Skills](https://developers.openai.com/api/docs/guides/skills) 与渐进式上下文
-   
+- [MCP 协议](https://modelcontextprotocol.io/introduction)、[Skills](https://developers.openai.com/api/docs/guides/skills) 与渐进式披露
+- 上下文工程 vs Harness 工程
+  - Function Calling、[Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs)   
 - Agentic AI
   - 为什么提示词变得没那么重要了？
   - 可观测性与编排：日志、工具调用记录、错误追踪、性能监控
   - Human-in-the-loop?
 - 评分与评测
   - [Artificial Analysis](https://artificialanalysis.ai/models)、[Deep SWE benchmark](https://deepswe.datacurve.ai/)
-  - 上下文工程 vs Harness 工程
-  - Function Calling、[Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs)
+
 - Multi-Agent: Agent SDK
   - ADK：`A2A 协议`、`agent.json`
   - LangGraph、LangChain 等框架的设计理念和实现细节
@@ -97,7 +97,7 @@
 > 什么是 Harness？为什么它是 Agent 设计的核心？
 
 - [OpenClaw 🦞](https://github.com/openclaw/openclaw)、[Hermes Agent ☤](https://github.com/nousresearch/hermes-agent)、[OpenHuman](https://github.com/tinyhumansai/openhuman)、[Pi](https://pi.dev/)
-- **Coding Agent**：[Cursor](https://www.cursor.com/)、[Codex](https://openai.com/codex)、[Claude Code](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/overview)、[OpenCode](https://opencode.ai/)
+- **Coding Agent**：[Cursor](https://www.cursor.com/)、[Codex](https://openai.com/codex)、[Claude Code](https://code.claude.com/docs)、[OpenCode](https://opencode.ai/)
   - `Hard Core`: 了解 [Pi](https://github.com/earendil-works/pi) 的实现原理
 
 
