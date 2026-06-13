@@ -13,6 +13,7 @@
 **This project is part of the [whitejoce/AI-Agent-Toolkit](https://github.com/whitejoce) stack, focusing on the Agent layer.**  
 Full architecture: [RAG (Enterprise Knowledge Base)](https://github.com/whitejoce/RAG-Demo) → [Agent](https://github.com/whitejoce/DIY-your-AI-agent) → [Tool Runtime (Hot-reloadable MCP Tools Platform)](https://github.com/whitejoce/ToolFlow)
 
+---
 
 ## 🔥 Project Overview
 > Translated by GPT-5.5
