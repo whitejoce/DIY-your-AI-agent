@@ -1,12 +1,13 @@
 # DIY Your AI Agent
-**本项目是 [whitejoce/AI-Agent-Toolkit](https://github.com/whitejoce) 技术栈的一部分，专注于 Agent 层。**  
-完整技术路线：[RAG](https://github.com/whitejoce/RAG-Demo)（企业知识库） → [Agent](https://github.com/whitejoce/DIY-your-AI-agent) → [Tool Runtime](https://github.com/whitejoce/ToolFlow)（可热加载的MCP Tools平台）
+
 <p align="center">
   <img alt="Python" src="https://img.shields.io/badge/Python-3.8%2B-blue">
   <img alt="OpenAI SDK" src="https://img.shields.io/badge/OpenAI%20SDK-1.35%2B-111827">
   <img alt="License" src="https://img.shields.io/badge/License-MIT-green">
 </p>
 
+**本项目是 [whitejoce/AI-Agent-Toolkit](https://github.com/whitejoce) 技术栈的一部分，专注于 Agent 层。**  
+完整技术路线：[RAG](https://github.com/whitejoce/RAG-Demo)（企业知识库） → [Agent](https://github.com/whitejoce/DIY-your-AI-agent) → [Tool Runtime](https://github.com/whitejoce/ToolFlow)（可热加载的MCP Tools平台）
 ## 🔥 项目简介  
 
 这是一个最小可运行的 AI Agent 示例。它不依赖 LangChain、LangGraph 等框架，项目为轻量级、易读、易修改而生，适合学习 Agent 的基本结构和工具调用机制。
