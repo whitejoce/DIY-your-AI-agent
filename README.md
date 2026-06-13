@@ -66,10 +66,13 @@ Keep `Mini Agent` as the learning and testing base. A more complete version can 
 ## 💡 Further Reading
 
 ### 1. Talk to a Frontier Model
+- LLM
+   - OpenAI: [model-spec.md](https://model-spec.openai.com/)
+   - Anthropic: [System Card](https://www.anthropic.com/system-cards) and [System Prompt](https://platform.claude.com/docs/en/release-notes/system-prompts)
 
 - LLM APIs
-   - OpenAI [Responses API](https://developers.openai.com/api/docs/guides/migrate-to-responses#about-the-responses-api) and `Chat Completions API`
-   - Anthropic [Messages API](https://platform.claude.com/docs/en/build-with-claude/working-with-messages)
+   - OpenAI: [Responses API](https://developers.openai.com/api/docs/guides/migrate-to-responses#about-the-responses-api) and `Chat Completions API`
+   - Anthropic: [Messages API](https://platform.claude.com/docs/en/build-with-claude/working-with-messages)
 - [MCP](https://modelcontextprotocol.io/introduction), [Skills](https://developers.openai.com/api/docs/guides/skills): progressive disclosure
    - Context engineering vs. harness engineering
    - Function calling, [Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs), Hooks

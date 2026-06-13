@@ -65,11 +65,15 @@
 
 ## 💡 See Also
 
-### 1. 和SOTA模型交流素材
+### 1. 与SOTA模型交流
+
+- LLM
+   - OpenAI: [model-spec.md](https://model-spec.openai.com/)
+   - Anthropic: [System Card](https://www.anthropic.com/system-cards) and [System Prompt](https://platform.claude.com/docs/en/release-notes/system-prompts)
 
 - LLM API
-  - OpenAI [Responses API](https://developers.openai.com/api/docs/guides/migrate-to-responses#about-the-responses-api)、`Chat Completions API`
-  - Anthropic [Messages API](https://platform.claude.com/docs/zh-CN/build-with-claude/working-with-messages)
+  - OpenAI：[Responses API](https://developers.openai.com/api/docs/guides/migrate-to-responses#about-the-responses-api)、`Chat Completions API`
+  - Anthropic：[Messages API](https://platform.claude.com/docs/zh-CN/build-with-claude/working-with-messages)
 - [MCP 协议](https://modelcontextprotocol.io/introduction)、[Skills](https://developers.openai.com/api/docs/guides/skills) 与渐进式披露
 - 上下文工程 vs Harness 工程
   - Function Calling、[Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs)、Hooks
