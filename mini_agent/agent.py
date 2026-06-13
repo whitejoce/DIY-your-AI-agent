@@ -38,6 +38,8 @@ class Agent:
         self.messages = []  # Memory layer: short-term context
         self.console = console
         self.show_tool_calls = show_tool_calls
+        self.approval_required_tools = {"exec_command", "write_file"}
+        self.bypass_approval = False
 
     # Tool Harness layer: register a tool schema and bind its handler
     def register_tool(self, definition, handler):
@@ -95,9 +97,27 @@ class Agent:
     # Tool Harness layer: execute a tool call through the bound handler
     def run_tool(self, name, args):
         handler = self.tool_handlers.get(name)
-        if handler:
-            return handler(args)
-        return f"ERROR: unknown tool {name}"
+        if not handler:
+            return f"ERROR: unknown tool {name}"
+        if self.requires_approval(name) and not self.request_tool_approval(name, args):
+            return f"ERROR: user rejected tool call {name}"
+        return handler(args)
+
+    def requires_approval(self, name):
+        return not self.bypass_approval and name in self.approval_required_tools
+
+    def request_tool_approval(self, name, args):
+        if not self.console:
+            return False
+        self.console.print(
+            Panel(
+                JSON.from_data(args),
+                title=f"Approval required: {name}",
+                border_style="red",
+            )
+        )
+        answer = Prompt.ask("Approve tool call?", choices=["y", "n"], default="n")
+        return answer.lower() == "y"
 
 
 if __name__ == "__main__":
@@ -115,7 +135,7 @@ if __name__ == "__main__":
             "Built-in tools: [dim]"
             + ", ".join([t["name"] for t in agent.tools])
             + "[/dim]\n"
-            "Type [bold]exit[/bold] or [bold]quit[/bold] to exit",
+            "Commands: [bold]/exit[/bold], [bold]/quit[/bold], [bold]/bypass[/bold]",
             title="Agent Ready",
             border_style="cyan",
         )
@@ -124,11 +144,17 @@ if __name__ == "__main__":
     # Main loop: get user input, run agent, display response
     while True:
         task = Prompt.ask("[bold cyan]User input[/bold cyan]")
-        if task.lower() in ["exit", "quit"]:
+        command = task.strip().lower()
+        if command in ["/exit", "/quit", "exit", "quit"]:
             console.print("[dim]Exited[/dim]")
             break
-        with console.status("[cyan]Agent is thinking...[/cyan]", spinner="dots"):
-            result = agent.run(task)
+        if command == "/bypass":
+            agent.bypass_approval = not agent.bypass_approval
+            status = "ON" if agent.bypass_approval else "OFF"
+            console.print(f"[yellow]Approval bypass: {status}[/yellow]")
+            continue
+
+        result = agent.run(task)
         console.print(
             Panel(
                 Markdown(result or ""),

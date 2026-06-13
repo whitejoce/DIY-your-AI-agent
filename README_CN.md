@@ -1,99 +1,106 @@
-# DIY Your AI Agent: 基于大模型的智能终端助手
-
-> 使用MCP实现的AI Agent: [MCP Agent Demo](https://github.com/whitejoce/mcp_agent)
->
+# DIY Your AI Agent
 **本项目是 [whitejoce/AI-Agent-Toolkit](https://github.com/whitejoce) 技术栈的一部分，专注于 Agent 层。**  
 完整技术路线：[RAG](https://github.com/whitejoce/RAG-Demo)（企业知识库） → [Agent](https://github.com/whitejoce/DIY-your-AI-agent) → [Tool Runtime](https://github.com/whitejoce/ToolFlow)（可热加载的MCP Tools平台）
+<p align="center">
+  <img alt="Python" src="https://img.shields.io/badge/Python-3.8%2B-blue">
+  <img alt="OpenAI SDK" src="https://img.shields.io/badge/OpenAI%20SDK-1.35%2B-111827">
+  <img alt="License" src="https://img.shields.io/badge/License-MIT-green">
+</p>
 
 ## 🔥 项目简介  
 
-本项目是一个 **基于大模型（LLM）的终端智能助手（Linux Agent）**，能够自动分析用户输入，判断是否需要执行终端命令，并以 **JSON 格式** 返回结果。
+这是一个最小可运行的 AI Agent 示例。它不依赖 LangChain、LangGraph 等框架，项目为轻量级、易读、易修改而生，适合学习 Agent 的基本结构和工具调用机制。
 
-<img src="./img/test.png" alt="运行示例">
 
----
+<p align="center">
+  <img src="./img/demo.png" alt="DIY Your AI Agent demo" width="900" style="border:1px solid #ccc; border-radius:8px;">
+</p>
 
-## 📖 原理解析  
+## Mini Agent
 
-### 核心设计思路
+当前仓库里的MVP示例放在 [`mini_agent/`](./mini_agent/) 目录下。
 
-本项目采用 **上下文管理 + 状态机 + Judge Agent** 的架构设计，实现智能的命令解析与执行：
-> 查看Prompt设计细节: [`prompt.md`](./docs/prompt_CN.md)
-1. **规则约束与交互设计**  
-   - 通过预定义规则（如严格的 JSON 输出格式）确保 LLM 响应的可解析性  
-   - 特殊指令处理：目录切换统一使用 `/cd <path>` 指令，保证会话状态一致性  
+- 使用说明：[mini_agent/README.md](./mini_agent/README.md)
+- 入口文件：`mini_agent/agent.py`
+- 工具定义：`mini_agent/tools.py`
 
-2. **上下文管理**  
-   - 维护 `SessionContext` 记录当前工作目录、历史命令等会话信息  
-   - 将系统环境信息注入 Prompt，帮助模型更准确地理解执行上下文  
+## 代码结构
 
-3. **终端命令执行**  
-   - 使用 `subprocess.Popen()` 在真实 Shell 环境中执行命令  
-   - 捕获标准输出/错误流，并实时返回执行结果  
-
-4. **Judge Agent 结果校验**  
-   - 命令执行后，调用 `check_result()` 让 LLM 作为"裁判"分析输出  
-   - 自动判断命令是否成功、是否需要进一步操作，形成闭环反馈   
-
-> 最小可行代码: 可以查看 [agent_mvp.py](./agent_mvp.py) , 浏览精简版代码。
-
----
-
-## 🚀 快速开始  
-
-### 环境准备  
-
-需要 **Python 3.8+**，并安装 `OpenAI` 和 `rich` (富文本)库：  
-
-```bash
-pip install -r requirements.txt
+```text
+.
+├── requirements.txt    # Python 依赖
+├── mini_agent/
+│   ├── agent.py        # Agent 主循环：模型调用、工具调度、终端交互
+│   ├── tools.py        # 工具定义和工具执行函数
+│   ├── README_*.md     # 说明文档
+│   └── .env.example    # 环境变量示例
+├── img/demo.png        # 运行截图
+├── README_CN.md        # 中文说明
+├── README.md           # 英文说明
+└── LICENSE
 ```
 
-### 配置 API
+## 正式版路线图
 
-在 `agent.py` 中，通过 `Agent.API_SLOTS` 维护多组模型配置。
-请根据实际情况修改：  
+保留`Mini Agent`作为学习和测试的基础，正式版逐步增加以下模块：
 
-```python
-Agent.API_SLOTS = {
-   "openai": {
-      "url": "https://api.openai.com/v1",
-      "api_key": "your_api_key",
-      "model": "gpt-4o",
-   },
-   # ...
-}
+- `ToolRegistry`：统一管理内置工具、第三方工具和 MCP 工具。
+- `ApprovalPolicy`：在执行写文件、执行命令等高风险工具前请求用户确认。
+- `ContextManager`：负责短期上下文、长对话压缩和 token 预算。
+- `Memory`：保存长期记忆、用户偏好和项目级上下文。
 
-agent = Agent(api_slot_name="openai")  # 或切换为你的自定义槽位
-```
+## 安全提示
 
-> **注意**：请确保所选槽位中的 `url` 和 `api_key` 已正确填写；可自定义新增模型配置。  
+> 这个仓库目前更适合学习 Agent 的基本结构，日常使用，推荐社区维护的成熟项目
+
+
 
 ---
 
-## 💡 如何做得更好？  
+## 💡 See Also
 
-如果你想让这个 Agent 更加智能和强大，可以尝试以下几种方式：  
+### 1. Ask the Friendly AI
 
-1️⃣ *Ask the Friendly AI* 🤖  
-   - 了解[Cursor](https://cursor.com/)、[Claude Code](https://claude.com/product/claude-code)的实现原理 
-   - 你可以向它提问：“如何优化我的终端助手？” 
-   *SEE ALSO*: 
-      - 检索增强生成（RAG）、向量数据库
-      - 提示词工程 vs 上下文工程
-      - Multi-Agent, `A2A协议` : `agent.json`
-      - `Funtion Calling`、约束输出、SFT微调
+- LLM API
+  - OpenAI [Responses API](https://developers.openai.com/api/docs/guides/migrate-to-responses#about-the-responses-api)、`Chat Completions API`
+  - Anthropic [Messages API](https://platform.claude.com/docs/zh-CN/build-with-claude/working-with-messages)
+- [MCP 协议](https://modelcontextprotocol.io/introduction)、[Skills](https://developers.openai.com/api/docs/guides/skills) 与渐进式上下文
+   
+- Agentic AI
+  - 为什么提示词变得没那么重要了？
+  - 可观测性与编排：日志、工具调用记录、错误追踪、性能监控
+  - Human-in-the-loop?
+- 评分与评测
+  - [Artificial Analysis](https://artificialanalysis.ai/models)、[Deep SWE benchmark](https://deepswe.datacurve.ai/)
+  - 上下文工程 vs Harness 工程
+  - Function Calling、[Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs)
+- Multi-Agent: Agent SDK
+  - ADK：`A2A 协议`、`agent.json`
+  - LangGraph、LangChain 等框架的设计理念和实现细节
+- 衡量 LLM 输出的质量
+  - 指标：准确性、完整性、长度、路径
 
-2️⃣ **上下文管理** 📚  
-   - 让 Agent 记住更多上下文信息，**持久化**之前的命令历史、用户偏好等。  
-   - 在`SessionContext`中添加更多信息，让模型更好地理解当前系统环境。
+### 2. 上下文管理的 Trade-off
 
-3️⃣ **Model Context Protocol** 🏗️  
-   - MCP（Model Context Protocol）是一种开放协议，旨在实现大型语言模型（LLM）与外部数据源和工具的无缝集成。
-   - 通过标准化AI系统与数据源的交互方式，MCP帮助模型获取更丰富的上下文信息，从而生成更准确、更相关的响应。
-   - 你可以参考 [MCP官方文档](https://modelcontextprotocol.io/introduction), [FastMCP](https://gofastmcp.com/getting-started/welcome) 来了解MCP的概念和应用。 
+推荐 [Claude Code 的网页动画演示](https://code.claude.com/docs/zh-CN/context-window)。
 
-这些改进方向，可以让你的 AI 终端助手不仅仅是一个“命令解析器”，而是一个真正具备智能性的 Agent！💡✨
+- 短期记忆：在当前对话中智能选择并保留最相关的信息
+  - 什么是 `dumb zone`？
+  - 上下文压缩：在对话过程中总结历史内容，节省 token 并保持连贯性
+- 长期记忆：记住用户偏好、历史对话和项目背景，提升个性化与连续性
+  - `AGENT.md`、`CLAUDE.md`：全局和项目级上下文文件
+  - Memory 机制：持久化命令历史、用户偏好等信息
+- 外部知识库：检索增强生成（RAG）
+
+### 3. 体验不同的 Harness 设计理念
+
+> 什么是 Harness？为什么它是 Agent 设计的核心？
+
+- [OpenClaw 🦞](https://github.com/openclaw/openclaw)、[Hermes Agent ☤](https://github.com/nousresearch/hermes-agent)、[OpenHuman](https://github.com/tinyhumansai/openhuman)、[Pi](https://pi.dev/)
+- **Coding Agent**：[Cursor](https://www.cursor.com/)、[Codex](https://openai.com/codex)、[Claude Code](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/overview)、[OpenCode](https://opencode.ai/)
+  - `Hard Core`: 了解 [Pi](https://github.com/earendil-works/pi) 的实现原理
+
+
 
 ---
 

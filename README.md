@@ -1,109 +1,115 @@
-# DIY Your AI Agent: AI-powered Smart Terminal Assistant  
+# DIY Your AI Agent
 
 <p align="center">
+   <img alt="Python" src="https://img.shields.io/badge/Python-3.8%2B-blue">
+   <img alt="OpenAI SDK" src="https://img.shields.io/badge/OpenAI%20SDK-1.35%2B-111827">
+   <img alt="License" src="https://img.shields.io/badge/License-MIT-green">
+</p>
+<p align="center">
   <a href="./README_CN.md">中文文档</a> |
-  <a href="https://deepwiki.com/whitejoce/DIY-your-AI-agent">deepwiki</a> |
-  <a href="https://github.com/whitejoce/mcp_agent">yet-another-mcp-implementation</a>
+  <a href="https://deepwiki.com/whitejoce/DIY-your-AI-agent">deepwiki</a>
 </p>
 
-**This project is part of the [whitejoce/AI-Agent-Toolkit](https://github.com/whitejoce) tech stack, focusing on the Agent layer.**  
+**This project is part of the [whitejoce/AI-Agent-Toolkit](https://github.com/whitejoce) stack, focusing on the Agent layer.**  
 Full architecture: [RAG (Enterprise Knowledge Base)](https://github.com/whitejoce/RAG-Demo) → [Agent](https://github.com/whitejoce/DIY-your-AI-agent) → [Tool Runtime (Hot-reloadable MCP Tools Platform)](https://github.com/whitejoce/ToolFlow)
 
+
 ## 🔥 Project Overview
+> Translated by GPT-5.5
 
-This project is a **Linux terminal Agent powered by LLMs**. It analyzes user input, decides whether a terminal command should be executed, and always returns the result in **JSON format**.
+This is a minimal runnable AI Agent example. It does not depend on frameworks such as LangChain or LangGraph. The project is designed to be lightweight, readable, and easy to modify, making it suitable for learning the basic structure of an Agent and its tool-calling mechanism.
 
-<img src="./img/test_en.png" alt="Example">
+<p align="center">
+   <img src="./img/demo.png" alt="DIY Your AI Agent demo" width="900" style="border:1px solid #ccc; border-radius:8px;">
+</p>
 
----
+## Mini Agent
 
-## 📖 How It Works
+The MVP example in this repository lives in [`mini_agent/`](./mini_agent/).
 
-This project uses a **Context Management + State Machine + Judge Agent** architecture to intelligently parse and execute commands:
+- Usage guide: [mini_agent/README_EN.md](./mini_agent/README_EN.md)
+- Entry point: `mini_agent/agent.py`
+- Tool definitions: `mini_agent/tools.py`
 
-> Check out the prompt design details: [`prompt.md`](./docs/prompt.md)
+## Project Structure
 
-1. **Rule Constraints & Interaction Design**  
-   - Predefined rules (like strict JSON output format) ensure the LLM's responses are always parsable  
-   - Special command handling: Directory changes always use the `/cd <path>` command to keep session state consistent  
-
-2. **Context Management**  
-   - Maintains a `SessionContext` that tracks the current working directory, command history, and other session info  
-   - Injects system environment details into the prompt, helping the model better understand the execution context  
-
-3. **Terminal Command Execution**  
-   - Uses `subprocess.Popen()` to run commands in a real shell environment  
-   - Captures stdout/stderr streams and returns execution results in real-time  
-
-4. **Judge Agent Result Validation**  
-   - After a command runs, calls `check_result()` to let the LLM act as a "judge" and analyze the output  
-   - Automatically determines if the command succeeded or needs follow-up actions, creating a closed feedback loop
-
-> The simplified version of the code (MVP): You can check [agent_mvp_en.py](./agent_mvp_en.py)  to browse it.
-
----
-
-## 🚀 Getting Started
-
-### Environment Setup
-
-* Requires **Python 3.8+** and the `openai` + `rich` packages:
-
-```bash
-pip install -r requirements.txt
+```text
+.
+├── requirements.txt    # Python dependencies
+├── mini_agent/
+│   ├── agent.py        # Agent loop: model calls, tool dispatch, terminal interaction
+│   ├── tools.py        # Tool schemas and execution handlers
+│   ├── README_*.md     # Documentation
+│   └── .env.example    # Environment variable example
+├── img/demo.png        # Demo screenshot
+├── README_CN.md        # Chinese README
+├── README.md           # English README
+└── LICENSE
 ```
 
-### Configure the API
+## Roadmap
 
-* `agent_en.py` manages multiple model configurations via `Agent.API_SLOTS`. Update them to match your environment:
+Keep `Mini Agent` as the learning and testing base. A more complete version can gradually add the following modules:
 
-```python
-Agent.API_SLOTS = {
-   "openai": {
-      "url": "https://api.openai.com/v1",
-      "api_key": "your_api_key",
-      "model": "gpt-4o",
-   },
-   # ...
-}
+- `ToolRegistry`: manage built-in tools, third-party tools, and MCP tools in one place.
+- `ApprovalPolicy`: ask for user confirmation before high-risk actions such as writing files or running commands.
+- `ContextManager`: manage short-term context, conversation compression, and token budgets.
+- `Memory`: store long-term memory, user preferences, and project-level context.
 
-agent = Agent(api_slot_name="openai")  # Or switch to your custom slot
-```
+## Safety Note
 
-> **Note:** Ensure the selected slot has the correct `url` and `api_key`. Feel free to add additional model profiles.
+> This repository is better suited for learning the basic structure of Agents. For daily use, prefer mature community-maintained projects.
 
 ---
 
-## 💡 Ways to Level Up
+## 💡 See Also
 
-Want to make the agent even smarter? Try these ideas:
+### 1. Ask the Friendly AI
 
-1️⃣ *Ask the Friendly AI* 🤖  
-   - Learn how tools like [Cursor](https://cursor.com/) and [Claude Code](https://claude.com/product/claude-code) work.
-   - Ask questions such as “How can I make this agent smarter?”
-   *See also*: 
-      - Retrieval-Augmented Generation (RAG), vector databases
-      - Prompt engineering vs. Context engineering
-      - Multi-Agent, `A2A protocol`: `agent.json`
-      - `Function Calling`, constrained output, SFT fine-tuning
+- LLM APIs
+   - OpenAI [Responses API](https://developers.openai.com/api/docs/guides/migrate-to-responses#about-the-responses-api), `Chat Completions API`
+   - Anthropic [Messages API](https://platform.claude.com/docs/zh-CN/build-with-claude/working-with-messages)
+- [MCP protocol](https://modelcontextprotocol.io/introduction), [Skills](https://developers.openai.com/api/docs/guides/skills), and progressive context
+- Agentic AI
+   - Why are prompts becoming less central?
+   - Observability and orchestration: logs, tool-call records, error tracing, and performance monitoring
+   - Human-in-the-loop?
+- Scoring and evaluation
+   - [Artificial Analysis](https://artificialanalysis.ai/models), [Deep SWE benchmark](https://deepswe.datacurve.ai/)
+   - Context engineering vs Harness engineering
+   - Function Calling, [Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs)
+- Multi-Agent: Agent SDK
+   - ADK: `A2A protocol`, `agent.json`
+   - Design ideas and implementation details of frameworks such as LangGraph and LangChain
+- Measuring LLM output quality
+   - Metrics: accuracy, completeness, length, and path
 
-2️⃣ **Context Management** 📚 
-   - Persist conversation history, user preferences, and environment details.
-   - Extend `SessionContext` for better context.
+### 2. Context Management Trade-offs
 
-3️⃣ **Model Context Protocol (MCP)** 🏗️  
-   - MCP is an open protocol that bridges LLMs with external tools and data sources.
-   - By standardizing this interaction, MCP helps models retrieve richer context and craft more relevant responses.
-   - Explore the [official MCP docs](https://modelcontextprotocol.io/introduction) and [FastMCP](https://gofastmcp.com/getting-started/welcome) to get started.
+Recommended: [Claude Code's animated context-window demo](https://code.claude.com/docs/zh-CN/context-window).
 
-These directions turn your AI helper into much more than a "command parser"—it becomes a truly intelligent agent! 💡✨
+- Short-term memory: intelligently select and preserve the most relevant information in the current conversation
+   - What is the `dumb zone`?
+   - Context compression: summarize previous conversation history to save tokens while preserving continuity
+- Long-term memory: remember user preferences, conversation history, and project background to improve personalization and continuity
+   - `AGENT.md`, `CLAUDE.md`: global and project-level context files
+   - Memory mechanism: persist command history, user preferences, and related information
+- External knowledge bases: Retrieval-Augmented Generation (RAG)
+
+### 3. Explore Different Harness Design Ideas
+
+> What is a Harness? Why is it central to Agent design?
+
+- [OpenClaw](https://github.com/openclaw/openclaw), [Hermes Agent](https://github.com/nousresearch/hermes-agent), [OpenHuman](https://github.com/tinyhumansai/openhuman), [Pi](https://pi.dev/)
+- **Coding Agent**: [Cursor](https://www.cursor.com/), [Codex](https://openai.com/codex), [Claude Code](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/overview), [OpenCode](https://opencode.ai/)
+   - `Hard Core`: understand how [Pi](https://github.com/earendil-works/pi) works
 
 ---
 
 ## 📜 License
 
-This project is released under the **MIT License**.
+This project is released under the **MIT License**. 
 
 ## 🤝 Contributions
 
-Issues & PRs are welcome! If you have better ideas, feel free to contribute code! 
+Issues and PRs are welcome. 
