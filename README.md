@@ -17,7 +17,7 @@ Full architecture: [RAG (Enterprise Knowledge Base)](https://github.com/whitejoc
 ## 🔥 Project Overview
 > Translated by GPT-5.5
 
-This is a minimal runnable AI Agent example. It does not depend on frameworks such as LangChain or LangGraph. The project is designed to be lightweight, readable, and easy to modify, making it suitable for learning the basic structure of an Agent and its tool-calling mechanism.
+A lightweight, framework-free AI Agent example. Built without LangChain or LangGraph, it prioritizes readability and simplicity to help you understand core Agent architecture.
 
 <p align="center">
    <img src="./img/demo.png" alt="DIY Your AI Agent demo" width="900" style="border:1px solid #ccc; border-radius:8px;">
@@ -27,7 +27,7 @@ This is a minimal runnable AI Agent example. It does not depend on frameworks su
 
 The MVP example in this repository lives in [`mini_agent/`](./mini_agent/).
 
-- Usage guide: [mini_agent/README_EN.md](./mini_agent/README_EN.md)
+- Usage guide: [mini_agent/README.md](./mini_agent/README.md)
 - Entry point: `mini_agent/agent.py`
 - Tool definitions: `mini_agent/tools.py`
 
@@ -62,47 +62,47 @@ Keep `Mini Agent` as the learning and testing base. A more complete version can 
 
 ---
 
-## 💡 See Also
+## 💡 Further Reading
 
-### 1. Ask the Friendly AI
+### 1. Talk to a Frontier Model
 
 - LLM APIs
-   - OpenAI [Responses API](https://developers.openai.com/api/docs/guides/migrate-to-responses#about-the-responses-api), `Chat Completions API`
+   - OpenAI [Responses API](https://developers.openai.com/api/docs/guides/migrate-to-responses#about-the-responses-api) and `Chat Completions API`
    - Anthropic [Messages API](https://platform.claude.com/docs/zh-CN/build-with-claude/working-with-messages)
-- [MCP protocol](https://modelcontextprotocol.io/introduction), [Skills](https://developers.openai.com/api/docs/guides/skills), and progressive context
+- [MCP](https://modelcontextprotocol.io/introduction), [Skills](https://developers.openai.com/api/docs/guides/skills), and progressive disclosure
+   - Context engineering vs. harness engineering
+   - Function calling and [Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs)
 - Agentic AI
    - Why are prompts becoming less central?
-   - Observability and orchestration: logs, tool-call records, error tracing, and performance monitoring
-   - Human-in-the-loop?
-- Scoring and evaluation
-   - [Artificial Analysis](https://artificialanalysis.ai/models), [Deep SWE benchmark](https://deepswe.datacurve.ai/)
-   - Context engineering vs Harness engineering
-   - Function Calling, [Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs)
-- Multi-Agent: Agent SDK
-   - ADK: `A2A protocol`, `agent.json`
-   - Design ideas and implementation details of frameworks such as LangGraph and LangChain
-- Measuring LLM output quality
-   - Metrics: accuracy, completeness, length, and path
+   - Observability and orchestration: logs, tool-call traces, error tracking, and performance monitoring
+   - Human-in-the-loop workflows
+- Benchmarks and evaluation
+   - [Artificial Analysis](https://artificialanalysis.ai/models) and [Deep SWE benchmark](https://deepswe.datacurve.ai/)
+- Multi-agent frameworks and SDKs
+   - ADK: `A2A protocol` and `agent.json`
+   - Design patterns behind frameworks such as LangGraph and LangChain
+- LLM output quality
+   - Metrics: accuracy, completeness, length, and reasoning path
 
 ### 2. Context Management Trade-offs
 
 Recommended: [Claude Code's animated context-window demo](https://code.claude.com/docs/zh-CN/context-window).
 
-- Short-term memory: intelligently select and preserve the most relevant information in the current conversation
+- Short-term memory: select and preserve the most relevant information in the current conversation
    - What is the `dumb zone`?
-   - Context compression: summarize previous conversation history to save tokens while preserving continuity
-- Long-term memory: remember user preferences, conversation history, and project background to improve personalization and continuity
-   - `AGENT.md`, `CLAUDE.md`: global and project-level context files
-   - Memory mechanism: persist command history, user preferences, and related information
+   - Context compression: summarize earlier turns to save tokens while preserving continuity
+- Long-term memory: retain user preferences, conversation history, and project context for better continuity
+   - `AGENT.md` and `CLAUDE.md`: global and project-level context files
+   - Memory systems: persist command history, user preferences, and related project facts
 - External knowledge bases: Retrieval-Augmented Generation (RAG)
 
-### 3. Explore Different Harness Design Ideas
+### 3. Explore Harness Design
 
-> What is a Harness? Why is it central to Agent design?
+> What is a harness, and why does it matter in agent design?
 
 - [OpenClaw](https://github.com/openclaw/openclaw), [Hermes Agent](https://github.com/nousresearch/hermes-agent), [OpenHuman](https://github.com/tinyhumansai/openhuman), [Pi](https://pi.dev/)
-- **Coding Agent**: [Cursor](https://www.cursor.com/), [Codex](https://openai.com/codex), [Claude Code](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/overview), [OpenCode](https://opencode.ai/)
-   - `Hard Core`: understand how [Pi](https://github.com/earendil-works/pi) works
+- **Coding agents**: [Cursor](https://www.cursor.com/), [Codex](https://openai.com/codex), [Claude Code](https://code.claude.com/docs), [OpenCode](https://opencode.ai/)
+   - Deep dive: understand how [Pi](https://github.com/earendil-works/pi) works
 
 ---
 
