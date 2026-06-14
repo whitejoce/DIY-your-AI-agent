@@ -32,16 +32,30 @@ The MVP example in this repository lives in [`mini_agent/`](./mini_agent/).
 - Entry point: `mini_agent/agent.py`
 - Tool definitions: `mini_agent/tools.py`
 
+## Testing
+
+Install the development dependencies and run the test suite from the repository root:
+
+```shell
+pip install -r requirements-dev.txt
+python -m pytest
+```
+
+The tests cover the `mini_agent` tool handlers and Agent tool-dispatch behavior without calling the OpenAI API.
+
 ## Project Structure
 
 ```text
 .
-├── requirements.txt    # Python dependencies
+├── requirements.txt        # Runtime Python dependencies
+├── requirements-dev.txt    # Development and test dependencies
+├── pytest.ini             # Pytest configuration
 ├── mini_agent/
 │   ├── agent.py        # Agent loop: model calls, tool dispatch, terminal interaction
 │   ├── tools.py        # Tool schemas and execution handlers
 │   ├── README_*.md     # Documentation
 │   └── .env.example    # Environment variable example
+├── tests/              # Automated tests for mini_agent
 ├── img/demo.png        # Demo screenshot
 ├── README_CN.md        # Chinese README
 ├── README.md           # English README

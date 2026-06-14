@@ -8,7 +8,11 @@ from rich.json import JSON
 from rich.markdown import Markdown
 from rich.panel import Panel
 from rich.prompt import Prompt
-from tools import BUILTIN_TOOLS
+
+if __package__:
+    from .tools import BUILTIN_TOOLS
+else:  # pragma: no cover - supports `python mini_agent/agent.py`
+    from tools import BUILTIN_TOOLS
 
 # Prompt layer: behavior constraints
 SYSTEM_PROMPT = """You are a helpful terminal assistant using the ReAct pattern.

@@ -30,16 +30,30 @@
 - 入口文件：`mini_agent/agent.py`
 - 工具定义：`mini_agent/tools.py`
 
+## 测试
+
+在仓库根目录安装开发依赖并运行测试：
+
+```shell
+pip install -r requirements-dev.txt
+python -m pytest
+```
+
+测试会覆盖 `mini_agent` 的工具处理函数和 Agent 工具调度逻辑，不会调用 OpenAI API。
+
 ## 代码结构
 
 ```text
 .
-├── requirements.txt    # Python 依赖
+├── requirements.txt        # 运行时 Python 依赖
+├── requirements-dev.txt    # 开发和测试依赖
+├── pytest.ini             # Pytest 配置
 ├── mini_agent/
 │   ├── agent.py        # Agent 主循环：模型调用、工具调度、终端交互
 │   ├── tools.py        # 工具定义和工具执行函数
 │   ├── README_*.md     # 说明文档
 │   └── .env.example    # 环境变量示例
+├── tests/              # mini_agent 自动化测试
 ├── img/demo.png        # 运行截图
 ├── README_CN.md        # 中文说明
 ├── README.md           # 英文说明
