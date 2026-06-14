@@ -69,6 +69,7 @@ Keep `Mini Agent` as the learning and testing base. A more complete version can 
 - LLM
    - OpenAI: [model-spec.md](https://model-spec.openai.com/)
    - Anthropic: [System Card](https://www.anthropic.com/system-cards) and [System Prompt](https://platform.claude.com/docs/en/release-notes/system-prompts)
+      - knowledge_cutoff
 
 - LLM APIs
    - OpenAI: [Responses API](https://developers.openai.com/api/docs/guides/migrate-to-responses#about-the-responses-api) and `Chat Completions API`
