@@ -15,8 +15,9 @@
 
 ## 🔥 项目简介  
 
-这是一个最小可运行的 AI Agent 示例。它不依赖 LangChain、LangGraph 等框架，项目为轻量级、易读、易修改而生，适合学习 Agent 的基本结构和工具调用机制。
-
+这是一个从 0 实现的轻量 AI Agent runtime，用于学习和理解：
+* LLM 如何进入 tool calling loop
+* 不依赖 LangChain / LangGraph 等框架，从最基础的工具调度逻辑开始构建，逐步增加功能模块，最终形成一个可用于生产环境的 Agent 框架。
 
 <p align="center">
   <img src="./img/demo.png" alt="DIY Your AI Agent demo" width="900" style="border:1px solid #ccc; border-radius:8px;">
