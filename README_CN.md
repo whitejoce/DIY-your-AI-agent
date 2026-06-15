@@ -89,12 +89,12 @@ python -m pytest
   - OpenAI：[Responses API](https://developers.openai.com/api/docs/guides/migrate-to-responses#about-the-responses-api)、`Chat Completions API`
   - Anthropic：[Messages API](https://platform.claude.com/docs/zh-CN/build-with-claude/working-with-messages)
 - [MCP 协议](https://modelcontextprotocol.io/introduction)、[Skills](https://developers.openai.com/api/docs/guides/skills) 与渐进式披露
-- 上下文工程 vs Harness 工程
-  - Function Calling、[Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs)、Hooks
-- Agentic AI
+- ~~提示词工程~~,上下文工程 vs Harness 工程 -> [Loop Engineering](https://www.runoob.com/ai-agent/loop-engineering.html)
   - 为什么提示词变得没那么重要了？
+    - Human-in-the-loop?
+- Agentic AI
+  - Function Calling、[Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs)、Hooks
   - 可观测性与编排：日志、工具调用记录、错误追踪、性能监控
-  - Human-in-the-loop?
 - 评分与评测
   - [Artificial Analysis](https://artificialanalysis.ai/models)、[Deep SWE benchmark](https://deepswe.datacurve.ai/)
 
