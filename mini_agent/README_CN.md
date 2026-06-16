@@ -31,13 +31,13 @@ python .\mini_agent\agent.py
 
 - `/exit`：退出程序。
 - `/quit`：退出程序。
-- `/bypass`：切换审批绕过模式。开启后，`exec_command` 和 `write_file` 不再询问确认；再次输入会关闭。
+- `/bypass`：切换审批绕过模式。开启后，`exec_command` 和 `edit_file` 不再询问确认；再次输入会关闭。
 
 ## 当前能力
-- 执行 `exec_command` 和 `write_file` 前默认请求用户批准。
+- 执行 `exec_command` 和 `edit_file` 前默认请求用户批准。
 - 内置 4 个本地工具：
-  - `read_file`：读取文本文件。
-  - `write_file`：写入文本文件。
+  - `read_file`：按 1-based 行号读取文本文件。
+  - `edit_file`：按 1-based 行号替换文件中的一段内容，保留其他行。
   - `search_files`：搜索文件内容。
   - `exec_command`：执行 shell 命令。
 
@@ -77,4 +77,4 @@ mini_agent/
 
 ## 安全提示
 
-这个示例可以读写文件，也可以执行 shell 命令。请不要在包含敏感文件的目录中随意测试，也不要把真实 `.env` 提交到 GitHub。
+这个示例可以读取和编辑文件，也可以执行 shell 命令。请不要在包含敏感文件的目录中随意测试，也不要把真实 `.env` 提交到 GitHub。

@@ -31,14 +31,14 @@ Use `/exit` or `/quit` to stop the program.
 
 - `/exit`: stop the program.
 - `/quit`: stop the program.
-- `/bypass`: toggle approval bypass mode. When enabled, `exec_command` and `write_file` run without asking for confirmation. Run it again to turn bypass off.
+- `/bypass`: toggle approval bypass mode. When enabled, `exec_command` and `edit_file` run without asking for confirmation. Run it again to turn bypass off.
 
 ## Current Capabilities
 
-- Asks for user approval before running `exec_command` or `write_file` by default.
+- Asks for user approval before running `exec_command` or `edit_file` by default.
 - Includes four local tools:
-  - `read_file`: read text files.
-  - `write_file`: write text files.
+  - `read_file`: read text files with 1-based line numbers.
+  - `edit_file`: replace a 1-based line range while preserving the rest of the file.
   - `search_files`: search file contents.
   - `exec_command`: execute shell commands.
 
@@ -79,4 +79,4 @@ Then move to `tools.py`:
 
 ## Safety Note
 
-This example can read files, write files, and execute shell commands. Avoid running it casually in directories that contain sensitive files, and never commit your real `.env` to GitHub.
+This example can read files, edit files, and execute shell commands. Avoid running it casually in directories that contain sensitive files, and never commit your real `.env` to GitHub.

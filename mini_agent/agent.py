@@ -10,13 +10,15 @@ from rich.panel import Panel
 from rich.prompt import Prompt
 
 if __package__:
-    from .tools import BUILTIN_TOOLS
+    from .tools import BUILTIN_TOOLS, ToolSpec
 else:  # pragma: no cover - supports `python mini_agent/agent.py`
-    from tools import BUILTIN_TOOLS
+    from tools import BUILTIN_TOOLS, ToolSpec
 
 # Prompt layer: behavior constraints
 SYSTEM_PROMPT = """You are a helpful terminal assistant using the ReAct pattern.
 When a tool is needed, call it with JSON arguments that match the tool schema.
+Before editing an existing file, read it first so you can use the correct line numbers.
+Use edit_file for file changes. It replaces only the requested 1-based line range and keeps the rest of the file.
 Treat tool results as observations: reason over them internally, then give the user a clear natural-language answer.
 Do not expose raw tool-call JSON or raw observation JSON unless the user explicitly asks for it.
 Keep the final response concise and directly useful.
@@ -42,14 +44,30 @@ class Agent:
         self.messages = []  # Memory layer: short-term context
         self.console = console
         self.show_tool_calls = show_tool_calls
-        self.approval_required_tools = {"exec_command", "write_file"}
+        self.approval_required_tools = set()
         self.bypass_approval = False
 
     # Tool Harness layer: register a tool schema and bind its handler
-    def register_tool(self, definition, handler):
+    def register_tool(self, definition, handler=None, requires_approval=False):
+        if isinstance(definition, ToolSpec):
+            requires_approval = definition.requires_approval
+            handler = definition.handler
+            definition = definition.definition
+        elif handler is None and isinstance(definition, tuple):
+            definition, handler, *rest = definition
+            if rest:
+                requires_approval = bool(rest[0])
+        if handler is None:
+            raise TypeError("handler is required when registering a raw tool definition")
+
         name = definition["name"]
+        if name in self.tool_handlers:
+            raise ValueError(f"Tool already registered: {name}")
+
         self.tools.append(definition)
         self.tool_handlers[name] = handler
+        if requires_approval:
+            self.approval_required_tools.add(name)
 
     def run(self, task):
         self.messages.append({"role": "user", "content": task})
@@ -74,9 +92,15 @@ class Agent:
     def run_tool_calls(self, tool_calls):
         results = []
         for tool_call in tool_calls:
-            args = json.loads(tool_call.arguments)
             results.append(tool_call.model_dump(exclude_none=True))
-            output = self.run_tool(tool_call.name, args)
+            try:
+                args = json.loads(tool_call.arguments)
+            except (json.JSONDecodeError, TypeError) as e:
+                message = getattr(e, "msg", str(e))
+                output = f"ERROR: invalid JSON arguments: {message}"
+                args = {"raw_arguments": tool_call.arguments}
+            else:
+                output = self.run_tool(tool_call.name, args)
             self.display_tool_call(tool_call.name, args)
             results.append(
                 {
@@ -105,7 +129,10 @@ class Agent:
             return f"ERROR: unknown tool {name}"
         if self.requires_approval(name) and not self.request_tool_approval(name, args):
             return f"ERROR: user rejected tool call {name}"
-        return handler(args)
+        try:
+            return handler(args)
+        except Exception as e:
+            return f"ERROR: tool {name} failed: {e}"
 
     def requires_approval(self, name):
         return not self.bypass_approval and name in self.approval_required_tools
@@ -129,8 +156,8 @@ if __name__ == "__main__":
     agent = Agent(console=console)
 
     # Register built-in tools
-    for definition, handler in BUILTIN_TOOLS:
-        agent.register_tool(definition, handler)
+    for tool in BUILTIN_TOOLS:
+        agent.register_tool(tool)
 
     # Initial info panel showing system prompt and available tools
     console.print(
