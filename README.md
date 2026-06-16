@@ -89,7 +89,7 @@ Keep `Mini Agent` as the learning and testing base. A more complete version can 
    - OpenAI: [Responses API](https://developers.openai.com/api/docs/guides/migrate-to-responses#about-the-responses-api) and `Chat Completions API`
    - Anthropic: [Messages API](https://platform.claude.com/docs/en/build-with-claude/working-with-messages)
 - [MCP](https://modelcontextprotocol.io/introduction), [Skills](https://developers.openai.com/api/docs/guides/skills): progressive disclosure
-   - ~~Prompt engineering~~, Context Engineering vs Harness Engineering -> Loop Engineering]
+   - ~~Prompt engineering~~, Context Engineering vs Harness Engineering -> Loop Engineering
       - Why are prompts becoming less important?
          - Human-in-the-loop?
 - Agentic AI
