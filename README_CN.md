@@ -89,7 +89,7 @@ python -m pytest
 - LLM API
   - OpenAI：[Responses API](https://developers.openai.com/api/docs/guides/migrate-to-responses#about-the-responses-api)、`Chat Completions API`
   - Anthropic：[Messages API](https://platform.claude.com/docs/zh-CN/build-with-claude/working-with-messages)
-- [MCP 协议](https://modelcontextprotocol.io/introduction)、[Skills](https://developers.openai.com/api/docs/guides/skills) 与渐进式披露
+- [MCP 协议](https://modelcontextprotocol.io/introduction)、[Skills](https://agentskills.io/specification) :渐进式披露
 - ~~提示词工程~~,上下文工程 vs Harness 工程 -> [Loop Engineering](https://www.runoob.com/ai-agent/loop-engineering.html)
   - 为什么提示词变得没那么重要了？
     - Human-in-the-loop?
