@@ -117,15 +117,16 @@ python -m pytest
 - 评分与评测
   - [Artificial Analysis](https://artificialanalysis.ai/models)、[Deep SWE benchmark](https://deepswe.datacurve.ai/)
 
-> 在寻找Agent SDK？
-> 可以看看 [DeepAgent](https://docs.langchain.com/oss/python/deepagents/overview)、[OpenAI Agents SDK](https://developers.openai.com/api/docs/guides/agents/quickstart)
+
 
 - Multi-Agent: Agent SDK
   - ADK：`A2A 协议`、`agent.json`
   - LangGraph、LangChain 等框架的设计理念和实现细节
 - 衡量 LLM 输出的质量
   - 准确性、完整性、长度、路径: [利用 Harness Engineering 解决复杂问题 – Dex Horthy, HumanLayer](https://www.bilibili.com/video/BV1EyQ9BCEwC)
-
+  
+> 在寻找Agent SDK？
+> 可以看看 [DeepAgent](https://docs.langchain.com/oss/python/deepagents/overview)、[OpenAI Agents SDK](https://developers.openai.com/api/docs/guides/agents/quickstart)
 ### 2. 上下文管理的 Trade-off
 
 推荐 [Claude Code 的网页动画演示](https://code.claude.com/docs/zh-CN/context-window)。
