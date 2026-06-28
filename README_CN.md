@@ -17,19 +17,65 @@
 
 这是一个从 0 实现的轻量 AI Agent runtime，用于学习和理解：
 * LLM 如何进入 tool calling loop
-* 不依赖 LangChain / LangGraph 等框架，从最基础的工具调度逻辑开始构建，逐步增加功能模块，最终形成一个可用于生产环境的 Agent 框架。
+* 不依赖 LangChain / LangGraph 等主 runtime 框架，从最基础的工具调度逻辑开始构建，并逐步扩展到上下文、记忆、审批、Skill 和 MCP 等模块。
 
 <p align="center">
   <img src="./img/demo.png" alt="DIY Your AI Agent demo" width="900" style="border:1px solid #ccc; border-radius:8px;">
 </p>
 
-## Mini Agent
+### Mini Agent
 
-当前仓库里的MVP示例放在 [`mini_agent/`](./mini_agent/) 目录下。
+当前仓库里的 MVP 示例放在 [`mini_agent/`](./mini_agent/) 目录下，可扩展版 runtime 放在 [`full_agent/`](./full_agent/) 目录下。
 
 - 使用说明：[mini_agent/README_CN.md](./mini_agent/README_CN.md)
 - 入口文件：`mini_agent/agent.py`
 - 工具定义：`mini_agent/tools.py`
+
+### Full Agent
+
+完整的Agent runtime，支持多种模型供应商、工具注册、审批策略、上下文管理、长期记忆和 Skill 加载。
+
+- Full Agent 使用说明：[full_agent/README_CN.md](./full_agent/README_CN.md)
+- 入口文件：`full_agent/cli.py`
+
+## 代码结构
+
+```text
+.
+├── requirements.txt        # 运行时 Python 依赖
+├── requirements-dev.txt    # 开发和测试依赖
+├── pytest.ini              # Pytest 配置
+├── mini_agent/
+│   ├── agent.py        # Agent 主循环：模型调用、工具调度、终端交互
+│   ├── tools.py        # 工具定义和工具执行函数
+│   ├── README_*.md     # 说明文档
+│   └── .env.example    # 环境变量示例
+├── full_agent/
+│   ├── runtime.py      # 可扩展 AgentRuntime 主循环
+│   ├── model.py        # 模型供应商 adapter
+│   ├── config.py       # 配置加载
+│   ├── memory.py       # JSONL 长期记忆
+│   ├── skills.py       # 目录型 instruction skill 加载
+│   ├── mcp.py          # MCP provider 协议和测试替身
+│   ├── tools/          # ToolSpec / ToolRegistry / ToolExecutor
+│   └── README_*.md     # 说明文档
+├── tests/              # mini_agent 和 full_agent 自动化测试
+├── img/demo.png        # 运行截图
+├── README_CN.md        # 中文说明
+├── README.md           # 英文说明
+└── LICENSE
+```
+
+## 正式版路线图
+
+保留 `Mini Agent` 作为学习和测试的基础，`Full Agent` 已经加入以下模块：
+
+- `ToolRegistry`：统一管理内置工具、第三方工具和 MCP 工具。
+- `ApprovalPolicy`：在执行写文件、执行命令等高风险工具前请求用户确认。
+- `ContextManager`：负责短期上下文、长对话压缩和 token 预算。
+- `Memory`：保存长期记忆、用户偏好和项目级上下文。
+
+下一步可以继续补充 RAG adapter、真实 MCP SDK provider、更完整的日志和 trace，以及更强的上下文压缩策略。
 
 ## 测试
 
@@ -40,39 +86,11 @@ pip install -r requirements-dev.txt
 python -m pytest
 ```
 
-测试会覆盖 `mini_agent` 的工具处理函数和 Agent 工具调度逻辑，不会调用 OpenAI API。
-
-## 代码结构
-
-```text
-.
-├── requirements.txt        # 运行时 Python 依赖
-├── requirements-dev.txt    # 开发和测试依赖
-├── pytest.ini             # Pytest 配置
-├── mini_agent/
-│   ├── agent.py        # Agent 主循环：模型调用、工具调度、终端交互
-│   ├── tools.py        # 工具定义和工具执行函数
-│   ├── README_*.md     # 说明文档
-│   └── .env.example    # 环境变量示例
-├── tests/              # mini_agent 自动化测试
-├── img/demo.png        # 运行截图
-├── README_CN.md        # 中文说明
-├── README.md           # 英文说明
-└── LICENSE
-```
-
-## 正式版路线图
-
-保留`Mini Agent`作为学习和测试的基础，正式版逐步增加以下模块：
-
-- `ToolRegistry`：统一管理内置工具、第三方工具和 MCP 工具。
-- `ApprovalPolicy`：在执行写文件、执行命令等高风险工具前请求用户确认。
-- `ContextManager`：负责短期上下文、长对话压缩和 token 预算。
-- `Memory`：保存长期记忆、用户偏好和项目级上下文。
+测试会覆盖 `mini_agent` 和 `full_agent` 的工具处理函数、配置、记忆、Skill、MCP provider 接口和 Agent 工具调度逻辑，不会调用 OpenAI API。
 
 ## 安全提示
 
-> 这个仓库目前更适合学习 Agent 的基本结构，日常使用，推荐社区维护的成熟项目
+> 这个仓库更适合学习 Agent runtime 的基本结构和扩展边界。日常生产使用时，建议结合成熟社区项目和更完整的安全策略。
 
 
 
@@ -98,6 +116,9 @@ python -m pytest
   - 可观测性与编排：日志、工具调用记录、错误追踪、性能监控
 - 评分与评测
   - [Artificial Analysis](https://artificialanalysis.ai/models)、[Deep SWE benchmark](https://deepswe.datacurve.ai/)
+
+> 在寻找Agent SDK？
+> 可以看看 [DeepAgent](https://docs.langchain.com/oss/python/deepagents/overview)、[OpenAI Agents SDK](https://developers.openai.com/api/docs/guides/agents/quickstart)
 
 - Multi-Agent: Agent SDK
   - ADK：`A2A 协议`、`agent.json`

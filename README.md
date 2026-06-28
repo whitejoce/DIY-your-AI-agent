@@ -18,19 +18,67 @@ Full architecture: [RAG (Enterprise Knowledge Base)](https://github.com/whitejoc
 ## 🔥 Project Overview
 > Translated by GPT-5.5
 
-A lightweight, framework-free AI Agent example. Built without LangChain or LangGraph, it prioritizes readability and simplicity to help you understand core Agent architecture.
+A lightweight AI Agent runtime built from scratch for learning and understanding:
+* How an LLM enters a tool-calling loop
+* How to build from basic tool dispatch without using LangChain / LangGraph as the main runtime framework, then gradually expand into context, memory, approval, Skills, and MCP modules.
 
 <p align="center">
    <img src="./img/demo.png" alt="DIY Your AI Agent demo" width="900" style="border:1px solid #ccc; border-radius:8px;">
 </p>
 
-## Mini Agent
+### Mini Agent
 
-The MVP example in this repository lives in [`mini_agent/`](./mini_agent/).
+The MVP example in this repository lives in [`mini_agent/`](./mini_agent/), and the extensible runtime lives in [`full_agent/`](./full_agent/).
 
 - Usage guide: [mini_agent/README.md](./mini_agent/README.md)
 - Entry point: `mini_agent/agent.py`
 - Tool definitions: `mini_agent/tools.py`
+
+### Full Agent
+
+A complete Agent runtime with multiple model providers, tool registration, approval policy, context management, long-term memory, and Skill loading.
+
+- Full Agent guide: [full_agent/README.md](./full_agent/README.md)
+- Entry point: `full_agent/cli.py`
+
+## Project Structure
+
+```text
+.
+├── requirements.txt        # Runtime Python dependencies
+├── requirements-dev.txt    # Development and test dependencies
+├── pytest.ini              # Pytest configuration
+├── mini_agent/
+│   ├── agent.py        # Agent loop: model calls, tool dispatch, terminal interaction
+│   ├── tools.py        # Tool schemas and execution handlers
+│   ├── README_*.md     # Documentation
+│   └── .env.example    # Environment variable example
+├── full_agent/
+│   ├── runtime.py      # Extensible AgentRuntime main loop
+│   ├── model.py        # Model provider adapters
+│   ├── config.py       # Configuration loading
+│   ├── memory.py       # JSONL long-term memory
+│   ├── skills.py       # Directory-based instruction skill loading
+│   ├── mcp.py          # MCP provider protocol and test double
+│   ├── tools/          # ToolSpec / ToolRegistry / ToolExecutor
+│   └── README_*.md     # Documentation
+├── tests/              # Automated tests for mini_agent and full_agent
+├── img/demo.png        # Demo screenshot
+├── README_CN.md        # Chinese README
+├── README.md           # English README
+└── LICENSE
+```
+
+## Roadmap
+
+Keep `Mini Agent` as the learning and testing base. `Full Agent` already includes:
+
+- `ToolRegistry`: manage built-in tools, third-party tools, and MCP tools in one place.
+- `ApprovalPolicy`: ask for user confirmation before high-risk actions such as writing files or running commands.
+- `ContextManager`: manage short-term context, conversation compression, and token budgets.
+- `Memory`: store long-term memory, user preferences, and project-level context.
+
+Next steps can add RAG adapters, a real MCP SDK provider, better logging and traces, and stronger context compression.
 
 ## Testing
 
@@ -41,39 +89,11 @@ pip install -r requirements-dev.txt
 python -m pytest
 ```
 
-The tests cover the `mini_agent` tool handlers and Agent tool-dispatch behavior without calling the OpenAI API.
-
-## Project Structure
-
-```text
-.
-├── requirements.txt        # Runtime Python dependencies
-├── requirements-dev.txt    # Development and test dependencies
-├── pytest.ini             # Pytest configuration
-├── mini_agent/
-│   ├── agent.py        # Agent loop: model calls, tool dispatch, terminal interaction
-│   ├── tools.py        # Tool schemas and execution handlers
-│   ├── README_*.md     # Documentation
-│   └── .env.example    # Environment variable example
-├── tests/              # Automated tests for mini_agent
-├── img/demo.png        # Demo screenshot
-├── README_CN.md        # Chinese README
-├── README.md           # English README
-└── LICENSE
-```
-
-## Roadmap
-
-Keep `Mini Agent` as the learning and testing base. A more complete version can gradually add the following modules:
-
-- `ToolRegistry`: manage built-in tools, third-party tools, and MCP tools in one place.
-- `ApprovalPolicy`: ask for user confirmation before high-risk actions such as writing files or running commands.
-- `ContextManager`: manage short-term context, conversation compression, and token budgets.
-- `Memory`: store long-term memory, user preferences, and project-level context.
+The tests cover tool handlers, configuration, memory, Skills, the MCP provider interface, and Agent tool dispatch for both `mini_agent` and `full_agent` without calling the OpenAI API.
 
 ## Safety Note
 
-> This repository is better suited for learning the basic structure of Agents. For daily use, prefer mature community-maintained projects.
+> This repository is better suited for learning the basic structure and extension boundaries of an Agent runtime. For production use, combine it with mature community projects and a more complete safety policy.
 
 ---
 
@@ -102,6 +122,9 @@ Keep `Mini Agent` as the learning and testing base. A more complete version can 
    - Design patterns behind frameworks such as LangGraph and LangChain
 - LLM output quality
    - Correctness, Completeness, Size, Trjectory: [No Vibes Allowed: Solving Hard Problems in Complex Codebases – Dex Horthy, HumanLayer](https://www.youtube.com/watch?v=rmvDxxNubIg)
+
+> Looking for an Agent SDK?
+> Check out [DeepAgent](https://docs.langchain.com/oss/python/deepagents/overview), [OpenAI Agents SDK](https://developers.openai.com/api/docs/guides/agents/quickstart).
 
 ### 2. Context Management Trade-offs
 
