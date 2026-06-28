@@ -3,7 +3,7 @@ import json
 from full_agent.approval import ApprovalPolicy
 from full_agent.config import AgentConfig
 from full_agent.model import ModelResponse, ToolCall
-from full_agent.runtime import AgentRuntime
+from full_agent.runtime import AgentRuntime, RuntimeHooks
 from full_agent.skills import SkillLoader
 from full_agent.tools import ToolRegistry, ToolSpec
 
@@ -116,3 +116,63 @@ def test_runtime_injects_selected_skill_instructions(tmp_path):
     runtime.run("run pytest")
 
     assert "Use pytest." in model.inputs[0][0]["content"]
+
+
+def test_runtime_hooks_can_intercept_model_and_tool_steps(tmp_path):
+    class Hooks(RuntimeHooks):
+        def __init__(self):
+            self.after_run_state = None
+
+        def before_model_call(self, runtime, state, input_messages, tools):
+            input_messages = list(input_messages)
+            input_messages[0] = {
+                "role": "system",
+                "content": input_messages[0]["content"] + "\nHooked.",
+            }
+            return input_messages, tools
+
+        def before_tool_call(self, runtime, state, tool_call, args):
+            args = dict(args)
+            args["value"] = "hooked"
+            return args
+
+        def after_tool_call(self, runtime, state, tool_call, args, output):
+            return output + "!"
+
+        def after_run(self, runtime, state):
+            self.after_run_state = state
+
+    hooks = Hooks()
+    model = FakeModel(
+        [
+            ModelResponse(
+                output_text="",
+                tool_calls=[
+                    ToolCall(
+                        name="echo",
+                        call_id="call_1",
+                        arguments=json.dumps({"value": "original"}),
+                    )
+                ],
+            ),
+            ModelResponse(output_text="done"),
+        ]
+    )
+    runtime = AgentRuntime(
+        config=AgentConfig(max_turns=3, memory_path=tmp_path / "memory.jsonl"),
+        model_client=model,
+        registry=make_registry(),
+        approval_policy=ApprovalPolicy(),
+        skill_loader=SkillLoader(tmp_path / "skills"),
+        hooks=hooks,
+    )
+
+    assert runtime.run("say hello") == "done"
+    assert "Hooked." in model.inputs[0][0]["content"]
+    assert {
+        "type": "function_call_output",
+        "call_id": "call_1",
+        "output": "echo hooked!",
+    } in runtime.conversation.messages
+    assert hooks.after_run_state.final_output == "done"
+    assert hooks.after_run_state.tool_results[0]["output"] == "echo hooked!"

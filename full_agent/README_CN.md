@@ -11,7 +11,7 @@
 ## 当前能力
 
 - `AgentRuntime`：负责 ReAct loop、模型调用、工具调用、短期上下文和最大轮数保护。
-- `OpenAIResponsesModel`：封装 OpenAI Responses API，测试中可替换为 fake model。
+- `ModelClient` adapter：支持 OpenAI Responses API、OpenAI Chat Completions API，并为 Anthropic Messages API 预留切换入口。
 - `ToolRegistry` / `ToolExecutor`：统一注册和执行工具，工具名全局唯一。
 - `ApprovalPolicy`：对高风险工具执行前请求审批，默认覆盖 `edit_file`、`exec_command`、`remember`。
 - `ConversationMemory` / `ContextManager`：保存当前会话，并按字符预算裁剪上下文。
@@ -31,9 +31,28 @@ pip install -r requirements.txt
 配置环境变量：
 
 ```plaintext
+MODEL_PROVIDER=openai
+MODEL_API=responses
 API_KEY=your_api_key_here
 BASE_URL=https://api.openai.com/v1
 MODEL=your_model_name
+MAX_TOKENS=2048
+TEMPERATURE=0.2
+```
+
+`AgentConfig.from_env()` 默认加载 `full_agent/.env`，不会因为从其他目录执行 `python -m full_agent` 而读取当前工作目录下的 `.env`。已有系统环境变量优先，不会被 `.env` 覆盖；测试或外部集成可以通过 `AgentConfig.from_env(env_file=...)` 显式指定配置文件。
+
+模型 API 通过 `MODEL_PROVIDER` 和 `MODEL_API` 切换：
+
+```plaintext
+MODEL_PROVIDER=openai
+MODEL_API=responses          # OpenAI Responses API
+
+MODEL_PROVIDER=openai
+MODEL_API=chat_completions   # OpenAI Chat Completions API
+
+MODEL_PROVIDER=anthropic
+MODEL_API=anthropic_messages # Anthropic Messages API，需要额外安装 anthropic
 ```
 
 启动 full agent：
@@ -88,9 +107,9 @@ adapter layer connects them
 full_agent/
 ├── __main__.py          # python -m full_agent 入口
 ├── cli.py               # 终端交互
-├── config.py            # AgentConfig
+├── config.py            # AgentConfig / ModelConfig
 ├── runtime.py           # AgentRuntime 主循环
-├── model.py             # ModelClient 抽象和 OpenAI Responses 实现
+├── model.py             # ModelClient 抽象和模型供应商 adapter
 ├── context.py           # 短期会话和上下文裁剪
 ├── memory.py            # JSONL 长期记忆
 ├── skills.py            # 目录型 skill 加载
